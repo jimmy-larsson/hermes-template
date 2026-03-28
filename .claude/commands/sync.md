@@ -1,22 +1,22 @@
 ---
-description: Sync updates from the MARVIN template
+description: Sync updates from the Hermes template
 ---
 
 # /sync - Get Updates
 
-Pull new features and commands from the MARVIN template into your workspace.
+Pull new features and commands from the Hermes template into your workspace.
 
 ## Instructions
 
 ### 1. Find the Template
 
-Read `.marvin-source` to get the path to the template directory:
+Read `.hermes-source` to get the path to the template directory:
 ```bash
-cat .marvin-source
+cat .hermes-source
 ```
 
 If this file doesn't exist, tell the user:
-> "I can't find your template source. This usually means you set up MARVIN manually. Would you like to tell me where your template folder is?"
+> "I can't find your template source. This usually means you set up Hermes manually. Would you like to tell me where your template folder is?"
 
 ### 2. Check What's New
 
@@ -80,4 +80,4 @@ If there are conflicts, explain:
 ### 7. Finish
 
 After syncing:
-> "All done! You now have the latest MARVIN features. Type `/help` to see what's available."
+> "All done! You now have the latest Hermes features. Type `/help` to see what's available."
