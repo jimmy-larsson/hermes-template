@@ -2,9 +2,9 @@
 description: Show available commands and integrations
 ---
 
-# /help - MARVIN Help
+# /help - Hermes Help
 
-Show the user what MARVIN can do and what integrations are available.
+Show the user what Hermes can do and what integrations are available.
 
 ## Instructions
 
@@ -22,10 +22,10 @@ Display this reference:
 | /update   | Quick checkpoint (save progress)    |
 | /report   | Generate a weekly summary of work   |
 | /commit   | Review and commit git changes       |
-| /code     | Open MARVIN in your IDE             |
+| /code     | Open Hermes in your IDE             |
 | /status   | Check integration & workspace health|
 | /help     | Show this help guide                |
-| /sync     | Get updates from MARVIN template    |
+| /sync     | Get updates from Hermes template    |
 ```
 
 ### 2. Show Current Integrations
@@ -40,7 +40,7 @@ Then display something like:
 ```
 ## Your Integrations
 
-These are the tools MARVIN can currently access:
+These are the tools Hermes can currently access:
 
 | Integration      | What It Does                                      |
 |------------------|---------------------------------------------------|
@@ -75,7 +75,7 @@ Just ask me to set one up! For example: "Help me connect to Jira"
 | Notion           | Pages, databases, wikis                   |
 | Linear           | Issues, projects, tracking                |
 
-Want something else? Check `.marvin/integrations/REQUESTS.md` to see what's planned or request a new one!
+Want something else? Check `.hermes/integrations/REQUESTS.md` to see what's planned or request a new one!
 ```
 
 ### 4. Offer Next Steps

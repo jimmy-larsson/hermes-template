@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# MARVIN Migration Script
-# Migrates existing MARVIN users to the new workspace separation architecture
+# Hermes Migration Script
+# Migrates existing Hermes users to the new workspace separation architecture
 
 set -e
 
@@ -24,23 +24,23 @@ print_header() {
     echo ""
 }
 
-# Get the template directory (parent of .marvin where this script lives)
+# Get the template directory (parent of .hermes where this script lives)
 TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEFAULT_WORKSPACE="$HOME/start"
+DEFAULT_WORKSPACE="$HOME/hermes"
 
-print_header "MARVIN Migration"
+print_header "Hermes Migration"
 
-echo "This script migrates your existing MARVIN to the new workspace architecture."
+echo "This script migrates your existing Hermes instance to the new workspace architecture."
 echo ""
 echo "Your personal data (goals, sessions, profile) will be preserved."
 echo "The template will be kept separate so you can get updates easily."
 echo ""
 
 # Ask for the location of their current MARVIN
-echo "Where is your current MARVIN installation?"
+echo "Where is your current Hermes installation?"
 echo "(This is the folder with your CLAUDE.md, state/, sessions/, etc.)"
 echo ""
-read -p "Path to current MARVIN [press Enter if this IS your current MARVIN]: " CURRENT_MARVIN
+read -p "Path to current Hermes [press Enter if this IS your current install]: " CURRENT_MARVIN
 
 if [[ -z "$CURRENT_MARVIN" ]]; then
     CURRENT_MARVIN="$TEMPLATE_DIR"
@@ -52,11 +52,11 @@ CURRENT_MARVIN="${CURRENT_MARVIN/#\~/$HOME}"
 # Verify it looks like a MARVIN installation
 if [[ ! -f "$CURRENT_MARVIN/CLAUDE.md" ]]; then
     print_color "$RED" "Error: Can't find CLAUDE.md in $CURRENT_MARVIN"
-    print_color "$RED" "This doesn't look like a MARVIN installation."
+    print_color "$RED" "This doesn't look like a Hermes installation."
     exit 1
 fi
 
-print_color "$GREEN" "Found MARVIN at: $CURRENT_MARVIN"
+print_color "$GREEN" "Found Hermes at: $CURRENT_MARVIN"
 
 # Check what user data exists
 echo ""
@@ -70,7 +70,7 @@ echo "Found the following user data:"
 
 # Ask for workspace location
 echo ""
-echo "Where would you like your new MARVIN workspace?"
+echo "Where would you like your new Hermes workspace?"
 echo "Default: $DEFAULT_WORKSPACE"
 read -p "Press Enter for default, or type a path: " WORKSPACE_INPUT
 
@@ -191,9 +191,9 @@ if [[ -d "$CURRENT_MARVIN/.claude/skills" ]]; then
     done
 fi
 
-# Create .marvin-source file pointing to template
-echo "$TEMPLATE_DIR" > "$WORKSPACE_DIR/.marvin-source"
-print_color "$GREEN" "  Created: .marvin-source"
+# Create .hermes-source file pointing to template
+echo "$TEMPLATE_DIR" > "$WORKSPACE_DIR/.hermes-source"
+print_color "$GREEN" "  Created: .hermes-source"
 
 # Initialize git if not present
 if [[ ! -d "$WORKSPACE_DIR/.git" ]]; then
@@ -202,17 +202,15 @@ if [[ ! -d "$WORKSPACE_DIR/.git" ]]; then
     cd "$WORKSPACE_DIR"
     git init
     git add .
-    git commit -m "Migrate to MARVIN workspace architecture
+    git commit -m "Migrate to Hermes workspace architecture
 
-Migrated from: $CURRENT_MARVIN
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+Migrated from: $CURRENT_MARVIN"
     print_color "$GREEN" "Git repository initialized"
 fi
 
 print_header "Migration Complete!"
 
-echo "Your MARVIN workspace is now at: $WORKSPACE_DIR"
+echo "Your Hermes workspace is now at: $WORKSPACE_DIR"
 echo ""
 echo "Your data has been preserved:"
 echo "  - Profile, goals, sessions, reports, content"
@@ -227,4 +225,4 @@ echo "  - Keep the template folder ($TEMPLATE_DIR) for updates"
 echo "  - Run /sync anytime to get new features"
 echo "  - Your old installation at $CURRENT_MARVIN can be deleted once you verify everything works"
 echo ""
-print_color "$GREEN" "Enjoy your upgraded MARVIN!"
+print_color "$GREEN" "Enjoy your upgraded Hermes!"

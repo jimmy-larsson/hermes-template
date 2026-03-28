@@ -1,6 +1,6 @@
 # Slack Integration
 
-Connect MARVIN to your Slack workspace.
+Connect Hermes to your Slack workspace.
 
 ## What It Does
 
@@ -11,7 +11,7 @@ Connect MARVIN to your Slack workspace.
 
 ## Who It's For
 
-Teams that use Slack for communication and want MARVIN to help search through conversations, track discussions, or post updates.
+Teams that use Slack for communication and want Hermes to help search through conversations, track discussions, or post updates.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ Teams that use Slack for communication and want MARVIN to help search through co
 ## Setup
 
 ```bash
-./.marvin/integrations/slack/setup.sh
+./.hermes/integrations/slack/setup.sh
 ```
 
 The script will guide you through:
@@ -50,7 +50,7 @@ The setup script will ask you to add these User Token Scopes:
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "List my Slack channels"
 - "Search Slack for meeting notes from last week"
@@ -71,7 +71,7 @@ This integration can perform actions that affect your team:
 | Send messages | **High** | Team members see it immediately |
 | Read messages, search | Low | No external impact |
 
-**MARVIN will always confirm before sending messages.**
+**Hermes will always confirm before sending messages.**
 
 ## Troubleshooting
 

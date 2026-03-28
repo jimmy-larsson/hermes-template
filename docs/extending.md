@@ -1,13 +1,13 @@
-# Extending MARVIN
+# Extending Hermes
 
-MARVIN has three types of capabilities. Understanding which to use is the key to building an effective system.
+Hermes has three types of capabilities. Understanding which to use is the key to building an effective system.
 
 ## Quick Decision Guide
 
 | Question | If Yes |
 |----------|--------|
 | Does the user explicitly invoke it with a slash command? | **Command** |
-| Should MARVIN delegate a chunk of autonomous work? | **Agent** |
+| Should Hermes delegate a chunk of autonomous work? | **Agent** |
 | Should it activate based on conversational context? | **Skill** |
 
 ## Commands
@@ -35,7 +35,7 @@ description: One-line description (shown in /help)
 
 ## Agents
 
-Specialized subagents MARVIN spawns via the Task tool for delegated, autonomous work.
+Specialized subagents Hermes spawns via the Task tool for delegated, autonomous work.
 
 **When to create an agent:**
 - Work can be delegated without step-by-step user input
@@ -66,7 +66,7 @@ model: sonnet
 **Tips:**
 - Agents should be autonomous. If the user needs to guide every step, it's probably a command.
 - Include specific output formats so results are consistent.
-- Add routing rules (see below) so MARVIN spawns agents automatically.
+- Add routing rules (see below) so Hermes spawns agents automatically.
 
 ## Skills
 
@@ -102,7 +102,7 @@ description: What this skill does
 
 ## Routing Rules
 
-Routing rules are auto-spawn triggers you add to CLAUDE.md. They tell MARVIN when to automatically delegate work to an agent without being asked.
+Routing rules are auto-spawn triggers you add to CLAUDE.md. They tell Hermes when to automatically delegate work to an agent without being asked.
 
 **Format:** Add rules to the "Routing Rules" section in CLAUDE.md:
 
@@ -128,15 +128,15 @@ If you use a CLI tool frequently, wrap it as a skill for better integration:
 1. Create a skill file in `.claude/skills/`
 2. Document the CLI's key commands and flags
 3. Add triage rules (how to interpret and route CLI output)
-4. Add trigger conditions (when should MARVIN use this CLI?)
+4. Add trigger conditions (when should Hermes use this CLI?)
 
-This pattern gives MARVIN domain knowledge about the tool, not just access to it.
+This pattern gives Hermes domain knowledge about the tool, not just access to it.
 
 ## Creating New Capabilities
 
-The fastest way to extend MARVIN:
+The fastest way to extend Hermes:
 
-1. Tell MARVIN: "Give yourself the ability to X"
+1. Tell Hermes: "Give yourself the ability to X"
 2. The `skill-creator` skill activates and determines the right type
 3. It creates the file in the correct location
 4. You can customize from there

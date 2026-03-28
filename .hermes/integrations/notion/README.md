@@ -1,6 +1,6 @@
 # Notion Integration
 
-Connect MARVIN to your Notion workspace for pages, databases, and notes.
+Connect Hermes to your Notion workspace for pages, databases, and notes.
 
 ## What It Does
 
@@ -13,7 +13,7 @@ Connect MARVIN to your Notion workspace for pages, databases, and notes.
 
 ## Who It's For
 
-Anyone who uses Notion for notes, documentation, wikis, project tracking, or as a knowledge base and wants MARVIN to read, search, and update their Notion workspace.
+Anyone who uses Notion for notes, documentation, wikis, project tracking, or as a knowledge base and wants Hermes to read, search, and update their Notion workspace.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ Anyone who uses Notion for notes, documentation, wikis, project tracking, or as 
 ## Setup
 
 ```bash
-./.marvin/integrations/notion/setup.sh
+./.hermes/integrations/notion/setup.sh
 ```
 
 The script will:
@@ -38,22 +38,22 @@ The script will:
 
 ## Sharing Pages with the Integration
 
-This is the most common setup mistake — the integration token is valid, but MARVIN can't find any pages because none have been shared.
+This is the most common setup mistake — the integration token is valid, but Hermes can't find any pages because none have been shared.
 
 **To share a page or database:**
 1. Open the page in Notion
 2. Click the `...` menu in the top-right corner
 3. Click **Connections**
-4. Search for and add your integration (e.g., `MARVIN`)
+4. Search for and add your integration (e.g., `Hermes`)
 
 **Tips:**
 - Sharing a parent page automatically shares all child pages beneath it
-- Share your top-level workspace pages to give MARVIN broad access
+- Share your top-level workspace pages to give Hermes broad access
 - Or share only specific pages/databases for more targeted access
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "Search my Notion for meeting notes"
 - "What's in my project tracker database?"
@@ -75,7 +75,7 @@ This integration can perform actions that affect your shared Notion workspace:
 | Search and read pages | Low | No external impact |
 | Query databases | Low | No external impact |
 
-MARVIN will always confirm before creating, updating, or appending to pages.
+Hermes will always confirm before creating, updating, or appending to pages.
 
 ## Troubleshooting
 

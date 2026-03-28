@@ -1,8 +1,8 @@
 ---
-description: End MARVIN session - save context, update logs and state
+description: End Hermes session - save context, update logs and state
 ---
 
-# /end - End MARVIN Session
+# /end - End Hermes Session
 
 Wrap up the current session and save all context for continuity.
 

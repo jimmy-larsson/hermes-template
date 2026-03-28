@@ -1,6 +1,6 @@
-# MARVIN Integrations
+# Hermes Integrations
 
-This directory contains integrations that extend MARVIN's capabilities. Each integration connects MARVIN to external tools and services.
+This directory contains integrations that extend Hermes's capabilities. Each integration connects Hermes to external tools and services.
 
 ---
 
@@ -8,34 +8,34 @@ This directory contains integrations that extend MARVIN's capabilities. Each int
 
 | Integration | Description | Setup |
 |-------------|-------------|-------|
-| [Google Workspace](./google-workspace/) | Gmail, Calendar, Drive | `./.marvin/integrations/google-workspace/setup.sh` |
-| [Atlassian](./atlassian/) | Jira, Confluence | `./.marvin/integrations/atlassian/setup.sh` |
-| [Parallel Search](./parallel-search/) | Web search | `./.marvin/integrations/parallel-search/setup.sh` |
-| [Slack](./slack/) | Team messaging, search | `./.marvin/integrations/slack/setup.sh` |
-| [Telegram](./telegram/) | Mobile AI assistant via Telegram | `./.marvin/integrations/telegram/setup.sh` |
-| [Linear](./linear/) | Issues, projects, cycles | `./.marvin/integrations/linear/setup.sh` |
-| [Notion](./notion/) | Pages, databases, notes, knowledge base | `./.marvin/integrations/notion/setup.sh` |
+| [Google Workspace](./google-workspace/) | Gmail, Calendar, Drive | `./.hermes/integrations/google-workspace/setup.sh` |
+| [Atlassian](./atlassian/) | Jira, Confluence | `./.hermes/integrations/atlassian/setup.sh` |
+| [Parallel Search](./parallel-search/) | Web search | `./.hermes/integrations/parallel-search/setup.sh` |
+| [Slack](./slack/) | Team messaging, search | `./.hermes/integrations/slack/setup.sh` |
+| [Telegram](./telegram/) | Mobile AI assistant via Telegram | `./.hermes/integrations/telegram/setup.sh` |
+| [Linear](./linear/) | Issues, projects, cycles | `./.hermes/integrations/linear/setup.sh` |
+| [Notion](./notion/) | Pages, databases, notes, knowledge base | `./.hermes/integrations/notion/setup.sh` |
 
 ---
 
 ## How to Install an Integration
 
-1. Browse the folders in this directory (`.marvin/integrations/`)
+1. Browse the folders in this directory (`.hermes/integrations/`)
 2. Read the integration's README to see what it does
-3. Run its setup script: `./.marvin/integrations/<name>/setup.sh`
-4. Restart MARVIN and you're good to go!
+3. Run its setup script: `./.hermes/integrations/<name>/setup.sh`
+4. Restart Hermes and you're good to go!
 
-Or just ask MARVIN: *"Help me set up the Notion integration"*
+Or just ask Hermes: *"Help me set up the Notion integration"*
 
 ---
 
 ## Request an Integration
 
-Want MARVIN to connect to a tool that's not here yet?
+Want Hermes to connect to a tool that's not here yet?
 
 **Option 1:** Open an issue on GitHub describing what you'd like
 
-**Option 2:** Add it to `.marvin/integrations/REQUESTS.md` and submit a PR
+**Option 2:** Add it to `.hermes/integrations/REQUESTS.md` and submit a PR
 
 **Option 3:** Build it yourself! See "Contributing" below.
 
@@ -43,14 +43,14 @@ Want MARVIN to connect to a tool that's not here yet?
 
 ## Contributing an Integration
 
-We'd love community contributions! If you've set up MARVIN with a tool you love, share it with others.
+We'd love community contributions! If you've set up Hermes with a tool you love, share it with others.
 
 ### Integration Structure
 
 Each integration should have its own folder:
 
 ```
-.marvin/integrations/
+.hermes/integrations/
 └── your-integration/
     ├── README.md      # Documentation (required sections below)
     ├── setup.sh       # Setup script (required patterns below)
@@ -135,7 +135,7 @@ echo -e "${BLUE}========================================${NC}"
 echo -e "${GREEN}  Setup Complete!${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
-echo "Try these commands with MARVIN:"
+echo "Try these commands with Hermes:"
 echo -e "  ${YELLOW}\"Example command 1\"${NC}"
 echo -e "  ${YELLOW}\"Example command 2\"${NC}"
 echo ""
@@ -182,7 +182,7 @@ This integration can perform actions that affect others or can't be easily undon
 | Modify calendar | Medium | Other attendees are notified |
 | Read messages | Low | No external impact |
 
-MARVIN will always confirm before performing high-risk actions.
+Hermes will always confirm before performing high-risk actions.
 ```
 
 ### Example README.md
@@ -190,7 +190,7 @@ MARVIN will always confirm before performing high-risk actions.
 ```markdown
 # Notion Integration
 
-Connect MARVIN to your Notion workspace.
+Connect Hermes to your Notion workspace.
 
 ## What It Does
 
@@ -211,12 +211,12 @@ Anyone who uses Notion for notes, wikis, or project management.
 ## Setup
 
 \`\`\`bash
-./.marvin/integrations/notion/setup.sh
+./.hermes/integrations/notion/setup.sh
 \`\`\`
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "Search my Notion for meeting notes"
 - "What's in my project tracker?"
@@ -263,4 +263,4 @@ Want to build one? Pick from the list or add your own!
 
 ---
 
-*This integrations directory is part of [MARVIN](https://github.com/SterlingChin/marvin-template), the AI Chief of Staff template.*
+*This integrations directory is part of [Hermes](https://github.com/SterlingChin/marvin-template), the AI assistant template.*

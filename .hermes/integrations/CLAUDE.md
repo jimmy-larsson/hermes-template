@@ -1,6 +1,6 @@
 # Integration Development Guidelines
 
-When helping a user create a new MARVIN integration, follow these requirements exactly.
+When helping a user create a new Hermes integration, follow these requirements exactly.
 
 ## Setup Script Requirements
 
@@ -98,7 +98,7 @@ This integration can perform actions that affect others or can't be easily undon
 | Delete files | High | Data loss may be permanent |
 | Read data | Low | No external impact |
 
-MARVIN will always confirm before performing high-risk actions.
+Hermes will always confirm before performing high-risk actions.
 ```
 
 If an integration is read-only, still include the section stating "This integration is read-only and cannot modify external data."
@@ -109,7 +109,7 @@ If an integration is read-only, still include the section stating "This integrat
 - [ ] `setup.sh` uses correct color codes and banner format
 - [ ] `setup.sh` removes existing MCP before adding
 - [ ] `README.md` has all required sections
-- [ ] Added integration to the table in `.marvin/integrations/README.md`
+- [ ] Added integration to the table in `.hermes/integrations/README.md`
 - [ ] Tested on a fresh install
 
 ## Reference

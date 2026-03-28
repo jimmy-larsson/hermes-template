@@ -1,18 +1,18 @@
-# MARVIN - Your AI Chief of Staff
+# Hermes - AI Assistant Template
 
-**MARVIN** = Manages Appointments, Reads Various Important Notifications
+**Hermes** -- AI Assistant Template
 
 An AI assistant that remembers your conversations, tracks your goals, and helps you stay organized. Like having a personal chief of staff who never forgets anything.
 
-## Why MARVIN?
+## Why Hermes?
 
-MARVIN extends Claude Code with capabilities designed for getting things done:
+Hermes extends Claude Code with capabilities designed for getting things done:
 
 - **Session continuity** - Pick up where you left off, even days later. Every conversation builds on the last.
-- **Goal tracking** - Set work and personal goals, MARVIN monitors progress and nudges you forward.
+- **Goal tracking** - Set work and personal goals, Hermes monitors progress and nudges you forward.
 - **Tool integrations** - Connect to Google Workspace, Microsoft 365, Atlassian, Slack, Linear, Notion, Telegram, and more.
 - **Extensibility** - Add commands, agents, and skills tailored to your workflow. Create new capabilities with simple markdown files.
-- **Thought partner** - MARVIN pushes back on weak ideas, asks probing questions, and helps you think through decisions. Not just a yes-man.
+- **Thought partner** - Hermes pushes back on weak ideas, asks probing questions, and helps you think through decisions. Not just a yes-man.
 
 ## Quick Start with Claude Code
 
@@ -27,14 +27,14 @@ MARVIN extends Claude Code with capabilities designed for getting things done:
    claude
    ```
 
-3. Ask MARVIN to help you set up:
-   > "Help me set up MARVIN"
+3. Ask Hermes to help you set up:
+   > "Help me set up Hermes"
 
-That's it. MARVIN walks you through the rest: your profile, goals, workspace location, and optional integrations.
+That's it. Hermes walks you through the rest: your profile, goals, workspace location, and optional integrations.
 
 ## Getting Started with GitHub Copilot CLI
 
-Want to use Copilot CLI to set up MARVIN quickly? Here's how:
+Want to use Copilot CLI to set up Hermes quickly? Here's how:
 
 ### Prerequisites
 
@@ -46,28 +46,28 @@ Use these Copilot commands to get started:
 
 ```bash
 # Navigate to your projects directory
-gh copilot suggest "clone marvin template repository"
+gh copilot suggest "clone hermes template repository"
 
 # Run the setup script
-gh copilot suggest "run setup script for marvin"
+gh copilot suggest "run setup script for hermes"
 
-# Start MARVIN
-gh copilot suggest "start marvin AI assistant"
+# Start Hermes
+gh copilot suggest "start hermes AI assistant"
 ```
 
-The `.marvin/setup.sh` script handles the complete installation: prerequisites, workspace creation, profile setup, and shell aliases. Just follow the prompts to configure your AI Chief of Staff.
+The `.hermes/setup.sh` script handles the complete installation: prerequisites, workspace creation, profile setup, and shell aliases. Just follow the prompts to configure your AI assistant.
 
 For additional integrations (Google Workspace, Slack, etc.), use:
 
 ```bash
-gh copilot suggest "configure marvin integrations"
+gh copilot suggest "configure hermes integrations"
 ```
 
 ## What You Get
 
 ### Daily Workflow
 
-Start your day with `/start` for a briefing: priorities, deadlines, progress toward goals. Work naturally throughout the day, MARVIN remembers everything. End with `/end` to save context for next time.
+Start your day with `/start` for a briefing: priorities, deadlines, progress toward goals. Work naturally throughout the day, Hermes remembers everything. End with `/end` to save context for next time.
 
 Between sessions, `/update` saves progress without ending. `/sync` pulls new features from this template into your workspace.
 
@@ -86,44 +86,44 @@ Between sessions, `/update` saves progress without ending. `/sync` pulls new fea
 
 ### Integrations
 
-MARVIN connects to tools you already use:
+Hermes connects to tools you already use:
 
 | Integration | What It Provides |
 |-------------|------------------|
-| [Google Workspace](.marvin/integrations/google-workspace/) | Gmail, Calendar, Drive |
-| [Microsoft 365](.marvin/integrations/ms365/) | Outlook, Calendar, OneDrive, Teams |
-| [Atlassian](.marvin/integrations/atlassian/) | Jira, Confluence |
-| [Slack](.marvin/integrations/slack/) | Channel monitoring, posting |
-| [Linear](.marvin/integrations/linear/) | Issue tracking |
-| [Notion](.marvin/integrations/notion/) | Page reading, database queries |
-| [Telegram](.marvin/integrations/telegram/) | Chat with MARVIN from your phone |
-| [Parallel Search](.marvin/integrations/parallel-search/) | Web search capabilities |
+| [Google Workspace](.hermes/integrations/google-workspace/) | Gmail, Calendar, Drive |
+| [Microsoft 365](.hermes/integrations/ms365/) | Outlook, Calendar, OneDrive, Teams |
+| [Atlassian](.hermes/integrations/atlassian/) | Jira, Confluence |
+| [Slack](.hermes/integrations/slack/) | Channel monitoring, posting |
+| [Linear](.hermes/integrations/linear/) | Issue tracking |
+| [Notion](.hermes/integrations/notion/) | Page reading, database queries |
+| [Telegram](.hermes/integrations/telegram/) | Chat with Hermes from your phone |
+| [Parallel Search](.hermes/integrations/parallel-search/) | Web search capabilities |
 
 Each integration includes setup instructions in its directory.
 
 ### Skills and Agents
 
-MARVIN uses a `.claude/` directory structure for extensibility:
+Hermes uses a `.claude/` directory structure for extensibility:
 
 - **Commands** (`.claude/commands/`) - User-triggered workflows you invoke with slash commands
-- **Agents** (`.claude/agents/`) - Specialized subagents MARVIN spawns for delegated work
+- **Agents** (`.claude/agents/`) - Specialized subagents Hermes spawns for delegated work
 - **Skills** (`.claude/skills/`) - Reusable capabilities Claude Code invokes contextually
 
-Templates are included for each type. Just say "create a skill for X" and MARVIN generates the file.
+Templates are included for each type. Just say "create a skill for X" and Hermes generates the file.
 
 ## How It Works
 
-MARVIN separates your workspace from the template:
+Hermes separates your workspace from the template:
 
 ```
-~/marvin/                    Your workspace (your data lives here)
+~/hermes/                    Your workspace (your data lives here)
 ├── CLAUDE.md               Your profile and preferences
 ├── state/                  Your goals and priorities
 ├── sessions/               Your daily session logs
 └── ...
 
 ~/marvin-template/          Template (get updates here)
-├── .marvin/                Setup scripts and integrations
+├── .hermes/                Setup scripts and integrations
 ├── .claude/                Command and agent templates
 └── ...
 ```
@@ -132,27 +132,25 @@ Your workspace holds all personal data. The template provides updates. Run `/syn
 
 ## Migrating from Older Versions
 
-If you were using MARVIN before the workspace separation:
+If you were using Hermes before the workspace separation:
 
 ```bash
 cd marvin-template
-./.marvin/migrate.sh
+./.hermes/migrate.sh
 ```
 
 The script copies your profile, goals, sessions, reports, and custom skills to a new workspace. Nothing is deleted from your old installation. Verify the new workspace works, then clean up the old one.
 
 ## Contributing
 
-MARVIN welcomes contributions in three areas:
+Hermes welcomes contributions in three areas:
 
-1. **Integrations** - Add support for new tools. See [.marvin/integrations/CLAUDE.md](.marvin/integrations/CLAUDE.md) for patterns and security requirements.
-2. **Commands, agents, skills** - Extend MARVIN's capabilities. Templates are in `.claude/commands/`, `.claude/agents/`, and `.claude/skills/`.
+1. **Integrations** - Add support for new tools. See [.hermes/integrations/CLAUDE.md](.hermes/integrations/CLAUDE.md) for patterns and security requirements.
+2. **Commands, agents, skills** - Extend Hermes capabilities. Templates are in `.claude/commands/`, `.claude/agents/`, and `.claude/skills/`.
 3. **Bug fixes** - Found an issue? Submit a PR with the fix and a test case.
 
 Fork the repo, create a branch, and submit a PR. All contributions are reviewed.
 
 ## About
 
-MARVIN is named after the Paranoid Android from The Hitchhiker's Guide to the Galaxy.
-
-Created by [Sterling Chin](https://sterlingchin.com).
+Based on the MARVIN template, created by [Sterling Chin](https://sterlingchin.com).

@@ -1,6 +1,6 @@
-# MARVIN Onboarding Guide
+# Hermes Onboarding Guide
 
-This guide walks new users through setting up MARVIN. Read by MARVIN when setup is not yet complete.
+This guide walks new users through setting up Hermes. Read by Hermes when setup is not yet complete.
 
 ---
 
@@ -12,7 +12,7 @@ Instead, for Atlassian and MS365:
 1. Run `claude mcp add` commands directly (see Step 7)
 2. User must restart Claude Code for new MCPs to appear
 3. After restart, user types `/mcp` to authenticate
-4. MARVIN detects pending auth state and guides them through it
+4. Hermes detects pending auth state and guides them through it
 
 ---
 
@@ -162,7 +162,7 @@ Be friendly and patient - assume the user is not technical.
 ### Step 1: Welcome
 
 Say something like:
-> "Welcome! I'm MARVIN, and I'll be your AI Chief of Staff. Let me help you get set up. This will take about 10 minutes, and I'll walk you through everything."
+> "Welcome! I'm Hermes, and I'll be your AI Chief of Staff. Let me help you get set up. This will take about 10 minutes, and I'll walk you through everything."
 
 ### Step 2: Gather Basic Info
 
@@ -195,17 +195,17 @@ Ask these questions one at a time, waiting for answers:
 5. "How would you like me to communicate with you?"
    - Professional (clear, direct, business-like)
    - Casual (friendly, relaxed, conversational)
-   - Sarcastic (dry wit, like the original Marvin from Hitchhiker's Guide)
+   - Sarcastic (dry wit, sardonic humor)
 
 ### Step 3: Create Your Workspace
 
-This is where we set up the user's personal MARVIN workspace, separate from the template.
+This is where we set up the user's personal Hermes workspace, separate from the template.
 
 Explain:
-> "Now I'm going to create your personal MARVIN workspace. This is where all your data, goals, and session logs will live. The template you downloaded will stay separate so you can get updates later."
+> "Now I'm going to create your personal Hermes workspace. This is where all your data, goals, and session logs will live. The template you downloaded will stay separate so you can get updates later."
 
-Ask where they'd like their MARVIN folder:
-> "Where would you like your MARVIN folder to live? I'd suggest somewhere easy to find:
+Ask where they'd like their Hermes folder:
+> "Where would you like your Hermes folder to live? I'd suggest somewhere easy to find:
 > - **Desktop** - Right there when you need it
 > - **Documents** - Tucked away but organized
 >
@@ -213,7 +213,7 @@ Ask where they'd like their MARVIN folder:
 
 **After they respond, explain what's about to happen:**
 > "Great! I'm going to run a few quick setup commands to create your workspace. You'll see some permission prompts pop up - just click **Accept** for each one. This is totally normal - I'm just:
-> - Creating your MARVIN folder
+> - Creating your Hermes folder
 > - Copying over the necessary files (commands, skills, etc.)
 > - Setting up your personal state files
 >
@@ -221,29 +221,29 @@ Ask where they'd like their MARVIN folder:
 
 **Create the workspace:**
 
-Run these commands (using their chosen path - `~/Desktop/marvin` or `~/Documents/marvin`):
+Run these commands (using their chosen path - `~/Desktop/hermes` or `~/Documents/hermes`):
 
 ```bash
 # Create the workspace directory
-mkdir -p ~/marvin
+mkdir -p ~/hermes
 
 # Copy the user-facing files from the template
-cp -r .claude ~/marvin/
-cp -r state ~/marvin/
-cp CLAUDE.md ~/marvin/
-cp .env.example ~/marvin/
+cp -r .claude ~/hermes/
+cp -r state ~/hermes/
+cp CLAUDE.md ~/hermes/
+cp .env.example ~/hermes/
 
 # Create empty directories for user data
-mkdir -p ~/marvin/sessions
-mkdir -p ~/marvin/reports
-mkdir -p ~/marvin/content
+mkdir -p ~/hermes/sessions
+mkdir -p ~/hermes/reports
+mkdir -p ~/hermes/content
 
-# Create .marvin-source file pointing to this template
-echo "$(pwd)" > ~/marvin/.marvin-source
+# Create .hermes-source file pointing to this template
+echo "$(pwd)" > ~/hermes/.hermes-source
 ```
 
 **What gets copied:**
-- `.claude/` - MARVIN capabilities (commands, agents, skills)
+- `.claude/` - Hermes capabilities (commands, agents, skills)
 - `.claude/commands/` - Slash commands (user can add their own)
 - `.claude/agents/` - Subagent definitions (user can add their own)
 - `.claude/skills/` - Reusable skills (user can add their own)
@@ -252,22 +252,22 @@ echo "$(pwd)" > ~/marvin/.marvin-source
 - `.env.example` - Template for API keys
 
 **What stays in the template:**
-- `.marvin/` - Setup scripts and integrations (run from here when needed)
+- `.hermes/` - Setup scripts and integrations (run from here when needed)
 - `sessions/`, `reports/`, `content/` - Created fresh in workspace
 
 Tell the user:
-> "I've created your MARVIN workspace at {path}. This is your personal space - all your data stays here. The template folder stays separate so you can get updates when new features are added."
+> "I've created your Hermes workspace at {path}. This is your personal space - all your data stays here. The template folder stays separate so you can get updates when new features are added."
 
 ### Step 4: Set Up Git (Optional)
 
-Ask: "Would you like to track your MARVIN workspace with git? This lets you back up your data and optionally sync it to GitHub."
+Ask: "Would you like to track your Hermes workspace with git? This lets you back up your data and optionally sync it to GitHub."
 
 If yes:
 ```bash
-cd ~/marvin
+cd ~/hermes
 git init
 git add .
-git commit -m "Initial MARVIN setup"
+git commit -m "Initial Hermes setup"
 ```
 
 Then ask: "Do you want to connect this to a GitHub repository? If so, create a **private** repository on GitHub and paste the URL here. Or press Enter to skip - you can always add this later."
@@ -285,7 +285,7 @@ If they skip or say no:
 
 Now update the files **in the new workspace** with their info:
 
-**Update `~/marvin/state/goals.md`** with their goals organized by type:
+**Update `~/hermes/state/goals.md`** with their goals organized by type:
 ```markdown
 # Goals
 
@@ -312,7 +312,7 @@ Last updated: {TODAY'S DATE}
 ...
 ```
 
-**Update `~/marvin/state/current.md`**:
+**Update `~/hermes/state/current.md`**:
 ```markdown
 # Current State
 
@@ -320,7 +320,7 @@ Last updated: {TODAY'S DATE}
 
 ## Active Priorities
 
-1. Complete MARVIN setup
+1. Complete Hermes setup
 2. {Their first priority if they mentioned one}
 
 ## Open Threads
@@ -329,10 +329,10 @@ Last updated: {TODAY'S DATE}
 
 ## Recent Context
 
-- Just set up MARVIN!
+- Just set up Hermes!
 ```
 
-**Update `~/marvin/CLAUDE.md`** - Replace the "User Profile" section with their actual info:
+**Update `~/hermes/CLAUDE.md`** - Replace the "User Profile" section with their actual info:
 ```markdown
 ## User Profile
 
@@ -349,18 +349,18 @@ Last updated: {TODAY'S DATE}
 
 ### Step 6: Quick Launch Shortcut (Optional)
 
-Ask: "Would you like to be able to start me by just typing `marvin` anywhere in the terminal? It's a quick shortcut that makes it easier to open me up."
+Ask: "Would you like to be able to start me by just typing `hermes` anywhere in the terminal? It's a quick shortcut that makes it easier to open me up."
 
 If yes, **set it up directly** (don't ask them to run a script):
 
 1. Detect their shell: `echo $SHELL`
 2. Determine config file: `.zshrc` for zsh, `.bashrc` for bash, `.profile` otherwise
-3. Check if `marvin()` function already exists in that file
+3. Check if `hermes()` function already exists in that file
 4. If not, append this function:
 
 ```bash
-# MARVIN - AI Chief of Staff
-marvin() {
+# Hermes - AI Chief of Staff
+hermes() {
     echo -e '\e[1;33m███╗   ███╗    █████╗    ██████╗   ██╗   ██╗  ██╗   ███╗   ██╗   \e[0m'
     echo -e '\e[1;33m████╗ ████║   ██╔══██╗   ██╔══██╗  ██║   ██║  ██║   ████╗  ██║   \e[0m'
     echo -e '\e[1;33m██╔████╔██║   ███████║   ██████╔╝  ██║   ██║  ██║   ██╔██╗ ██║   \e[0m'
@@ -372,15 +372,15 @@ marvin() {
 }
 ```
 
-Replace `{WORKSPACE_PATH}` with their actual workspace path (e.g., `~/marvin`).
+Replace `{WORKSPACE_PATH}` with their actual workspace path (e.g., `~/hermes`).
 
-5. Tell them: "Done! After we finish here, open a new terminal and you can start me anytime by typing `marvin`."
+5. Tell them: "Done! After we finish here, open a new terminal and you can start me anytime by typing `hermes`."
 
-If they skip: "No worries! You can always navigate to your MARVIN folder and run `claude` to start me."
+If they skip: "No worries! You can always navigate to your Hermes folder and run `claude` to start me."
 
 ### Step 7: Explain the Daily Workflow
 
-Explain how a typical day with MARVIN works:
+Explain how a typical day with Hermes works:
 
 > "Here's how we'll work together each day:"
 >
@@ -408,7 +408,7 @@ Then show the full command list:
 
 ### Step 8: Explain How I Work
 
-This is important - set expectations about MARVIN's personality:
+This is important - set expectations about Hermes's personality:
 
 > "One more thing: I'm not just here to agree with everything you say. When you're brainstorming or making decisions, I'll:
 > - Help you explore different options
@@ -421,7 +421,7 @@ This is important - set expectations about MARVIN's personality:
 ### Step 9: Connect Your Tools (Optional)
 
 Tell them about the template first:
-> "One more thing before we wrap up: **Keep the template folder you downloaded.** That's where I get updates from. When new features or integrations are added, you can run `/sync` to pull them into your workspace. Don't worry - your personal data is safe in your MARVIN folder and won't be overwritten."
+> "One more thing before we wrap up: **Keep the template folder you downloaded.** That's where I get updates from. When new features or integrations are added, you can run `/sync` to pull them into your workspace. Don't worry - your personal data is safe in your Hermes folder and won't be overwritten."
 
 Then ask about integrations:
 > "I can connect to several tools to help you out. Which of these do you use?"
@@ -435,7 +435,7 @@ Then ask about integrations:
 
 **If they say no or skip:**
 
-> "No problem! We can always add these later. Just ask me anytime - 'Hey MARVIN, help me connect to Jira' - and I'll walk you through it."
+> "No problem! We can always add these later. Just ask me anytime - 'Hey Hermes, help me connect to Jira' - and I'll walk you through it."
 
 Move directly to Step 10.
 
@@ -532,10 +532,10 @@ claude mcp add slack -s user \
 After adding integrations, create a file to track what needs `/mcp` authentication:
 
 ```bash
-# In the user's workspace (e.g., ~/marvin)
+# In the user's workspace (e.g., ~/hermes)
 cat > .onboarding-pending-auth << 'EOF'
 # Integrations pending authentication
-# MARVIN will read this file on next startup and guide you through auth
+# Hermes will read this file on next startup and guide you through auth
 
 atlassian
 ms365
@@ -556,7 +556,7 @@ After adding integrations (and creating the pending auth file if needed), contin
 
 **Tell them we're done and need to restart:**
 
-> "That's everything! Your MARVIN is all set up."
+> "That's everything! Your Hermes is all set up."
 
 **If they set up integrations:**
 > "I've added your integrations, but I need to restart to see them. Here's what to do:
@@ -564,7 +564,7 @@ After adding integrations (and creating the pending auth file if needed), contin
 > 1. Type `exit` to close me
 > 2. Close this terminal window completely
 > 3. Open a new terminal
-> 4. Type `marvin` to start me up again
+> 4. Type `hermes` to start me up again
 >
 > When you come back, I'll walk you through connecting your accounts - it'll just take a minute. Then type `/start` for your first real briefing!
 >
@@ -573,12 +573,12 @@ After adding integrations (and creating the pending auth file if needed), contin
 **Wait for them to exit.** They will return via the "Resuming After Restart" flow at the top of this document.
 
 **If they skipped integrations:**
-> "To finish up, you'll need to restart your terminal for the `marvin` command to work. Here's what to do:
+> "To finish up, you'll need to restart your terminal for the `hermes` command to work. Here's what to do:
 >
 > 1. Type `exit` to close me
 > 2. Close this terminal window completely
 > 3. Open a new terminal
-> 4. Type `marvin` to start me up again
+> 4. Type `hermes` to start me up again
 > 5. Type `/start` for your first briefing!
 >
 > Ready? Type `exit` and I'll see you soon!"
@@ -590,16 +590,16 @@ Delete the `.onboarding-pending-auth` file if it exists, then give them their fi
 
 ## After Onboarding
 
-Once setup is complete, MARVIN should:
+Once setup is complete, Hermes should:
 1. Never show this onboarding flow again
 2. Use the normal `/start` briefing flow
 3. Reference CLAUDE.md for the user's profile and preferences
-4. Run from the user's workspace directory (e.g., ~/marvin), not the template
+4. Run from the user's workspace directory (e.g., ~/hermes), not the template
 
 ## Getting Updates (/sync)
 
-When the user runs `/sync`, MARVIN should:
-1. Read `.marvin-source` to find the template directory
+When the user runs `/sync`, Hermes should:
+1. Read `.hermes-source` to find the template directory
 2. Check for new/updated files in the template's `.claude/commands/`, `.claude/agents/`, and `.claude/skills/`
 3. Copy new files to the user's workspace
 4. For conflicts, the user's version is the source of truth (don't overwrite)

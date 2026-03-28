@@ -1,6 +1,6 @@
 # Google Workspace Integration
 
-Connect MARVIN to your Google account for email, calendar, and file access.
+Connect Hermes to your Google account for email, calendar, and file access.
 
 ## What It Does
 
@@ -31,7 +31,7 @@ The script will:
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "What's on my calendar today?"
 - "Show me my unread emails"
@@ -50,7 +50,7 @@ This integration can perform actions that affect others or can't be easily undon
 | Delete emails | **Medium** | May be recoverable from trash |
 | Read emails, calendar, Drive | Low | No external impact |
 
-**MARVIN will always confirm before sending emails or modifying calendar events.**
+**Hermes will always confirm before sending emails or modifying calendar events.**
 
 ## Troubleshooting
 

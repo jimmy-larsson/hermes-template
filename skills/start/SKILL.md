@@ -1,11 +1,11 @@
 ---
 name: start
 description: |
-  Start MARVIN session with briefing. Use when user types /start or starts a new session. Loads context, reviews state, gives daily briefing.
+  Start Hermes session with briefing. Use when user types /start or starts a new session. Loads context, reviews state, gives daily briefing.
 license: MIT
-compatibility: marvin
+compatibility: hermes
 metadata:
-  marvin-category: session
+  hermes-category: session
   user-invocable: true
   slash-command: /start
   model: default
@@ -14,12 +14,12 @@ metadata:
 
 # Session Start Skill
 
-Start MARVIN session with full context loading and daily briefing.
+Start Hermes session with full context loading and daily briefing.
 
 ## When to Use
 
 - When user types `/start`
-- At the start of any Claude Code session in the MARVIN directory
+- At the start of any Claude Code session in the Hermes directory
 - When resuming work after a break
 
 ## Process

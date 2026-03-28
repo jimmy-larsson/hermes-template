@@ -1,6 +1,6 @@
 #!/bin/bash
 # Linear MCP Setup Script
-# Connect MARVIN to Linear for issue tracking and project management
+# Connect Hermes to Linear for issue tracking and project management
 
 set -e
 
@@ -151,7 +151,7 @@ echo -e "${BLUE}========================================${NC}"
 echo -e "${GREEN}  Setup Complete!${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
-echo "Try these commands with MARVIN:"
+echo "Try these commands with Hermes:"
 echo -e "  ${YELLOW}\"Show me my open Linear issues\"${NC}"
 echo -e "  ${YELLOW}\"Create a Linear issue: Fix login bug — priority high\"${NC}"
 echo -e "  ${YELLOW}\"What's the status of ENG-47?\"${NC}"

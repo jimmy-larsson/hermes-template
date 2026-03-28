@@ -1,6 +1,6 @@
 # Linear Integration
 
-Connect MARVIN to Linear for issue tracking and project management.
+Connect Hermes to Linear for issue tracking and project management.
 
 ## What It Does
 
@@ -12,7 +12,7 @@ Connect MARVIN to Linear for issue tracking and project management.
 
 ## Who It's For
 
-Anyone who uses Linear for project management and wants MARVIN to create, search, and update issues as part of their daily workflow.
+Anyone who uses Linear for project management and wants Hermes to create, search, and update issues as part of their daily workflow.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Anyone who uses Linear for project management and wants MARVIN to create, search
 ## Setup
 
 ```bash
-./.marvin/integrations/linear/setup.sh
+./.hermes/integrations/linear/setup.sh
 ```
 
 The script will:
@@ -34,7 +34,7 @@ The script will:
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "Show me my open Linear issues"
 - "Create a Linear issue: Update the onboarding flow — priority high, assign to me"
@@ -54,7 +54,7 @@ This integration can perform actions that affect your team:
 | Add comments | **Medium** | Mentioned users and subscribers get notified |
 | Search and read issues | Low | No external impact |
 
-MARVIN will always confirm before creating, updating, or commenting on issues.
+Hermes will always confirm before creating, updating, or commenting on issues.
 
 ## Troubleshooting
 

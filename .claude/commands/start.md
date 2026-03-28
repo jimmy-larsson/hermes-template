@@ -1,10 +1,10 @@
 ---
-description: Start MARVIN session - load context, give briefing
+description: Start Hermes session - load context, give briefing
 ---
 
-# /start - Start MARVIN Session
+# /start - Start Hermes Session
 
-Start up as MARVIN (Manages Appointments, Reads Various Important Notifications), your AI Chief of Staff.
+Start up as Hermes, your AI assistant.
 
 ## Instructions
 

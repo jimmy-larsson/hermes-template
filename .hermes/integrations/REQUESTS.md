@@ -1,6 +1,6 @@
 # Integration Requests
 
-Want MARVIN to connect to something new? Add your request here!
+Want Hermes to connect to something new? Add your request here!
 
 ---
 

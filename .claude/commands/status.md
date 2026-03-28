@@ -1,8 +1,8 @@
 ---
-description: Check integration health and MARVIN workspace status
+description: Check integration health and Hermes workspace status
 ---
 
-# /status - MARVIN Status Check
+# /status - Hermes Status Check
 
 Check what integrations are connected and whether they're working, plus workspace health.
 
@@ -42,7 +42,7 @@ If it can't be tested easily, mark it as **Configured** (installed but unverifie
 
 ### 3. Check Workspace Health
 
-Verify the MARVIN workspace is set up properly:
+Verify the Hermes workspace is set up properly:
 
 - **State files** - Do `state/current.md` and `state/goals.md` exist and have real content (not just placeholders)?
 - **Session logs** - Is there a recent session log in `sessions/`? How many days since the last session?
@@ -54,7 +54,7 @@ Verify the MARVIN workspace is set up properly:
 Display a clear status report:
 
 ```
-## MARVIN Status
+## Hermes Status
 
 ### Integrations
 
@@ -79,8 +79,8 @@ Display a clear status report:
 ### Available (Not Installed)
 
 These integrations are available but not yet configured:
-- Google Workspace - `./.marvin/integrations/google-workspace/setup.sh`
-- Telegram - `./.marvin/integrations/telegram/setup.sh`
+- Google Workspace - `./.hermes/integrations/google-workspace/setup.sh`
+- Telegram - `./.hermes/integrations/telegram/setup.sh`
 ```
 
 Adjust the report based on what's actually found. Only show the "Available" section if there are uninstalled integrations.

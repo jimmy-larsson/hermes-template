@@ -1,6 +1,6 @@
 # Parallel Search Integration
 
-Connect MARVIN to the web with fast, parallel search capabilities.
+Connect Hermes to the web with fast, parallel search capabilities.
 
 ## What It Does
 
@@ -9,7 +9,7 @@ Connect MARVIN to the web with fast, parallel search capabilities.
 
 ## Who It's For
 
-Anyone who wants MARVIN to have access to current information from the web.
+Anyone who wants Hermes to have access to current information from the web.
 
 ## Prerequisites
 
@@ -18,14 +18,14 @@ None! This is a free, hosted MCP service.
 ## Setup
 
 ```bash
-./.marvin/integrations/parallel-search/setup.sh
+./.hermes/integrations/parallel-search/setup.sh
 ```
 
 The script will configure the Parallel Search MCP server for Claude Code.
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "Search the web for latest React documentation"
 - "What's new in Python 3.12?"

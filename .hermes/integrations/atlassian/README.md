@@ -1,6 +1,6 @@
 # Atlassian Integration
 
-Connect MARVIN to Jira and Confluence.
+Connect Hermes to Jira and Confluence.
 
 ## What It Does
 
@@ -28,7 +28,7 @@ The script will:
 
 ## Try It
 
-After setup, try these commands with MARVIN:
+After setup, try these commands with Hermes:
 
 - "Show me my open Jira tickets"
 - "What's the status of PROJECT-123?"
@@ -47,7 +47,7 @@ This integration can perform actions that affect your team:
 | Create issues/pages | Low | Creates new items, doesn't affect existing |
 | Read tickets, pages, search | Low | No external impact |
 
-**MARVIN will always confirm before modifying tickets or editing pages.**
+**Hermes will always confirm before modifying tickets or editing pages.**
 
 ## Troubleshooting
 

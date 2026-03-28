@@ -1,11 +1,11 @@
 # Telegram Integration
 
-Connect MARVIN to Telegram for a full AI assistant experience on mobile.
+Connect Hermes to Telegram for a full AI assistant experience on mobile.
 
 ## What It Does
 
-- **Chat with MARVIN** - Full conversational AI via Telegram
-- **Read/write files** - Access your MARVIN workspace from anywhere
+- **Chat with Hermes** - Full conversational AI via Telegram
+- **Read/write files** - Access your Hermes workspace from anywhere
 - **Fetch URLs** - Get YouTube transcripts, Reddit posts, articles
 - **Search files** - Find content across your notes and documents
 - **Send files** - Get documents delivered as Telegram attachments
@@ -14,10 +14,10 @@ Connect MARVIN to Telegram for a full AI assistant experience on mobile.
 
 ## Who It's For
 
-Anyone who wants MARVIN accessible from their phone. Perfect for:
+Anyone who wants Hermes accessible from their phone. Perfect for:
 - Capturing ideas on the go
 - Quick file lookups while away from your desk
-- Sending links for MARVIN to process and save
+- Sending links for Hermes to process and save
 - Mobile-first workflows
 
 ## Prerequisites
@@ -29,7 +29,7 @@ Anyone who wants MARVIN accessible from their phone. Perfect for:
 ## Setup
 
 ```bash
-./.marvin/integrations/telegram/setup.sh
+./.hermes/integrations/telegram/setup.sh
 ```
 
 The script will guide you through:
@@ -43,13 +43,13 @@ The script will guide you through:
 After setup, start the bot:
 
 ```bash
-./.marvin/integrations/telegram/run.sh
+./.hermes/integrations/telegram/run.sh
 ```
 
 Or run directly:
 
 ```bash
-cd .marvin/integrations/telegram
+cd .hermes/integrations/telegram
 source venv/bin/activate
 python telegram_bot.py
 ```
@@ -91,7 +91,7 @@ Set these in `.env` or your environment:
 
 ### User Authorization (Required)
 
-**This bot has full access to your MARVIN workspace.** You MUST specify which Telegram users are allowed to use it.
+**This bot has full access to your Hermes workspace.** You MUST specify which Telegram users are allowed to use it.
 
 To find your Telegram user ID:
 1. Message [@userinfobot](https://t.me/userinfobot) on Telegram
@@ -105,7 +105,7 @@ The bot will refuse to start without authorized users configured.
 
 ## Danger Zone
 
-This integration has **full access** to your MARVIN workspace:
+This integration has **full access** to your Hermes workspace:
 
 | Action | Risk Level | Who's Affected |
 |--------|------------|----------------|
@@ -116,7 +116,7 @@ This integration has **full access** to your MARVIN workspace:
 ### Security Model
 
 - **Mandatory authorization** - Bot requires `TELEGRAM_ALLOWED_USERS` to start
-- **Path sandboxing** - All file operations restricted to MARVIN workspace
+- **Path sandboxing** - All file operations restricted to Hermes workspace
 - **Symlink protection** - Symlinks pointing outside workspace are blocked
 - **Access logging** - Unauthorized access attempts are logged with user ID
 - **Error sanitization** - Internal paths not exposed in error messages
@@ -126,7 +126,7 @@ This integration has **full access** to your MARVIN workspace:
 1. **Keep your bot token secret** - Anyone with the token can receive messages
 2. **Limit authorized users** - Only add users you trust completely
 3. **Review the logs** - Check for unauthorized access attempts
-4. **Don't store secrets in workspace** - The bot can read any file in your MARVIN directory
+4. **Don't store secrets in workspace** - The bot can read any file in your Hermes directory
 5. **Run on trusted network** - The bot communicates with Telegram servers
 
 ## Troubleshooting
@@ -155,7 +155,7 @@ This integration runs as a standalone Python process (not an MCP server). It:
 - Uses the `python-telegram-bot` library for Telegram API
 - Calls Claude directly via the Anthropic SDK with tool use
 - Stores conversation history in SQLite (`telegram.db`)
-- Has access to your MARVIN workspace for file operations
+- Has access to your Hermes workspace for file operations
 
 ## Files
 

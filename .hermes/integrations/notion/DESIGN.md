@@ -1,22 +1,22 @@
-# MARVIN Integration Guide: Notion
+# Hermes Integration Guide: Notion
 
 > **Status:** Implemented. The README.md and setup.sh have been extracted into
-> `.marvin/integrations/notion/`. This document remains as a design reference
+> `.hermes/integrations/notion/`. This document remains as a design reference
 > covering MCP server details, auth rationale, the page-sharing permission
 > model, environment variables, and testing checklists.
 
 ## Goal
 
-Add a Notion integration to the MARVIN template so that MARVIN can interact with Notion (pages, databases, notes, knowledge base) via Notion's MCP server.
+Add a Notion integration to the Hermes template so that Hermes can interact with Notion (pages, databases, notes, knowledge base) via Notion's MCP server.
 
 ---
 
 ## Design References
 
-1. **Integration pattern requirements:** `.marvin/integrations/CLAUDE.md` — 6 setup.sh rules, 9 README sections, Danger Zone format
-2. **Contribution guidelines:** `.marvin/integrations/README.md`
-3. **Remote MCP reference:** `.marvin/integrations/atlassian/`
-4. **Local npx-based MCP reference:** `.marvin/integrations/slack/` — closest to Notion's recommended setup
+1. **Integration pattern requirements:** `.hermes/integrations/CLAUDE.md` — 6 setup.sh rules, 9 README sections, Danger Zone format
+2. **Contribution guidelines:** `.hermes/integrations/README.md`
+3. **Remote MCP reference:** `.hermes/integrations/atlassian/`
+4. **Local npx-based MCP reference:** `.hermes/integrations/slack/` — closest to Notion's recommended setup
 5. Notion follows the Slack pattern: a local MCP server run via `npx` with an API token passed as an environment variable.
 
 ---
@@ -59,17 +59,17 @@ Notion provides **two official MCP server options:**
 
 1. Go to https://www.notion.so/profile/integrations
 2. Click **"New integration"**
-3. Name it (e.g., `MARVIN`)
+3. Name it (e.g., `Hermes`)
 4. Select the workspace it should access
 5. Under **Capabilities**, ensure "Read content", "Update content", and "Insert content" are enabled
 6. Click **Submit** and copy the integration token (starts with `ntn_`)
 7. **Critical step — share pages with the integration:**
-   - Go to each Notion page or database you want MARVIN to access
-   - Click the `...` menu → **Connections** → add your `MARVIN` integration
+   - Go to each Notion page or database you want Hermes to access
+   - Click the `...` menu → **Connections** → add your `Hermes` integration
    - The integration can **only** see pages you explicitly share with it
    - Sharing a parent page shares all child pages beneath it
 
-This page-sharing step is the **#1 source of "why can't MARVIN find my pages?"** issues. The setup script reminds users about it.
+This page-sharing step is the **#1 source of "why can't Hermes find my pages?"** issues. The setup script reminds users about it.
 
 ### Available MCP Tools (v2.0.0)
 
@@ -87,9 +87,9 @@ This page-sharing step is the **#1 source of "why can't MARVIN find my pages?"**
 
 ---
 
-## Target Capabilities for MARVIN
+## Target Capabilities for Hermes
 
-Once connected, MARVIN should be able to:
+Once connected, Hermes should be able to:
 
 - **Pull notes into context** — query a notes database, retrieve content, and use it in conversations and briefings
 - **Update docs** — edit strategy docs, append meeting notes, update page properties
@@ -105,7 +105,7 @@ Once connected, MARVIN should be able to:
 Extracted into the proper directory structure:
 
 ```
-.marvin/integrations/notion/
+.hermes/integrations/notion/
 ├── README.md       # User-facing docs (9 required sections)
 └── setup.sh        # Interactive setup script (6 required patterns + Node.js check)
 ```
@@ -130,8 +130,8 @@ NOTION_API_KEY=            # Alias — same value, used by some tools
 
 ## Repo Updates (completed)
 
-- [x] `.marvin/integrations/README.md` — Added to the integrations table; removed from "Integration Ideas"
-- [ ] Root `README.md` — Add row: `| [Notion](.marvin/integrations/notion/) | Pages, databases, notes | /help then follow prompts |`
+- [x] `.hermes/integrations/README.md` — Added to the integrations table; removed from "Integration Ideas"
+- [ ] Root `README.md` — Add row: `| [Notion](.hermes/integrations/notion/) | Pages, databases, notes | /help then follow prompts |`
 - [ ] Root `CLAUDE.md` — Add row to integrations table: `| Notion | Pages, databases, notes |`
 - [x] Safety Guidelines already covers Notion (existing "Publishing content" row lists "Confluence, Notion, blogs")
 
@@ -144,7 +144,7 @@ NOTION_API_KEY=            # Alias — same value, used by some tools
 - **Node.js is required** for the local server path. The setup script checks for this upfront (following the Slack integration pattern). The OAuth path does NOT need Node.js.
 - **The `@notionhq/notion-mcp-server` package uses `NOTION_TOKEN`** as its environment variable, while `.env.example` currently has `NOTION_API_KEY`. The setup script writes both to `.env` for compatibility, and the `claude mcp add` command passes the correct one.
 - **v2.0.0 introduced "data sources"** as the primary abstraction over databases. This simplifies querying and is the default behavior — no special configuration needed.
-- **Notion databases are powerful** and MARVIN can leverage them for structured queries (filter by date, tag, status, person, etc.). This makes Notion especially useful as a knowledge base or task tracker that MARVIN can query during briefings.
+- **Notion databases are powerful** and Hermes can leverage them for structured queries (filter by date, tag, status, person, etc.). This makes Notion especially useful as a knowledge base or task tracker that Hermes can query during briefings.
 
 ---
 
@@ -158,16 +158,16 @@ After implementation, verify these operations work:
 - [ ] Update a page — `"Add a heading to my Test Page: 'Section One'"`
 - [ ] Query a database — `"Show all items in my tasks database with status 'In Progress'"`
 - [ ] Handle missing permissions — searching for a page NOT shared with the integration returns a helpful message, not a crash
-- [ ] MARVIN confirms before create/update/append actions (Danger Zone compliance)
+- [ ] Hermes confirms before create/update/append actions (Danger Zone compliance)
 
 ---
 
-## Conformance Checklist (from `.marvin/integrations/CLAUDE.md`)
+## Conformance Checklist (from `.hermes/integrations/CLAUDE.md`)
 
 - [x] `setup.sh` includes scope selection prompt
 - [x] `setup.sh` uses correct color codes and banner format
 - [x] `setup.sh` removes existing MCP before adding
 - [x] `setup.sh` includes Node.js check (correct — local npx-based server)
 - [x] `README.md` has all 9 required sections (Title, What It Does, Who It's For, Prerequisites, Setup, Try It, Danger Zone, Troubleshooting, Attribution)
-- [x] Added integration to the table in `.marvin/integrations/README.md`
+- [x] Added integration to the table in `.hermes/integrations/README.md`
 - [ ] Tested on a fresh install

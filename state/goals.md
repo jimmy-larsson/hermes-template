@@ -1,6 +1,6 @@
 # Goals
 
-<!-- SETUP NOT COMPLETE: Tell MARVIN about your goals during setup -->
+<!-- SETUP NOT COMPLETE: Tell Hermes about your goals during setup -->
 
 Last updated: Not yet configured
 
@@ -36,4 +36,4 @@ Last updated: Not yet configured
 
 ---
 
-*Update goals anytime: "Let's update my goals." MARVIN checks progress during /start and /report.*
+*Update goals anytime: "Let's update my goals." Hermes checks progress during /start and /report.*

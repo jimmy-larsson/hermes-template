@@ -1,13 +1,13 @@
 # Current State
 
 <!-- SETUP NOT COMPLETE: This file has placeholder content -->
-<!-- MARVIN will populate this during your first session -->
+<!-- Hermes will populate this during your first session -->
 
 Last updated: Not yet configured
 
 ## Active Priorities
 
-1. [Complete MARVIN setup]
+1. [Complete Hermes setup]
 2. [Your priorities will appear here]
 3. [Updated every session by /end and /update]
 
@@ -22,4 +22,4 @@ Last updated: Not yet configured
 
 ---
 
-*This file is the source of truth for session continuity. MARVIN reads it on startup and updates it on every /end and /update. If "Last updated" is more than 3 days old, MARVIN will suggest a full refresh.*
+*This file is the source of truth for session continuity. Hermes reads it on startup and updates it on every /end and /update. If "Last updated" is more than 3 days old, Hermes will suggest a full refresh.*

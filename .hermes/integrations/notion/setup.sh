@@ -1,6 +1,6 @@
 #!/bin/bash
 # Notion MCP Setup Script
-# Connect MARVIN to Notion for pages, databases, and notes
+# Connect Hermes to Notion for pages, databases, and notes
 
 set -e
 
@@ -116,7 +116,7 @@ else
     echo ""
     echo "  1. Go to: https://www.notion.so/profile/integrations"
     echo "  2. Click 'New integration'"
-    echo "  3. Name it (e.g., 'MARVIN')"
+    echo "  3. Name it (e.g., 'Hermes')"
     echo "  4. Select your workspace"
     echo "  5. Under Capabilities, enable: Read, Update, and Insert content"
     echo "  6. Click 'Submit' and copy the token (starts with ntn_)"
@@ -171,10 +171,10 @@ else
     echo ""
     echo "Your Notion integration can ONLY access pages you explicitly share with it."
     echo ""
-    echo "For each page or database you want MARVIN to access:"
+    echo "For each page or database you want Hermes to access:"
     echo "  1. Open the page in Notion"
     echo "  2. Click the '...' menu → Connections"
-    echo "  3. Add your integration (e.g., 'MARVIN')"
+    echo "  3. Add your integration (e.g., 'Hermes')"
     echo ""
     echo "Tip: Sharing a parent page shares all child pages beneath it."
     echo ""
@@ -191,7 +191,7 @@ echo -e "${BLUE}========================================${NC}"
 echo -e "${GREEN}  Setup Complete!${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
-echo "Try these commands with MARVIN:"
+echo "Try these commands with Hermes:"
 echo -e "  ${YELLOW}\"Search my Notion for meeting notes\"${NC}"
 echo -e "  ${YELLOW}\"What's in my project tracker?\"${NC}"
 echo -e "  ${YELLOW}\"Create a new page called 'Ideas'\"${NC}"

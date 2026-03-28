@@ -1,7 +1,7 @@
-"""MARVIN Telegram Bot with Tool Use.
+"""Hermes Telegram Bot with Tool Use.
 
-A Telegram interface for MARVIN that can:
-- Read and write files in your MARVIN workspace
+A Telegram interface for Hermes that can:
+- Read and write files in your Hermes workspace
 - Search the codebase
 - Fetch content from links (YouTube, Reddit, etc.)
 - Execute tasks on your behalf
@@ -21,11 +21,11 @@ from dotenv import load_dotenv
 
 # Determine paths
 SCRIPT_DIR = Path(__file__).parent
-MARVIN_ROOT = SCRIPT_DIR.parent.parent.parent  # .marvin/integrations/telegram -> root
+HERMES_ROOT = SCRIPT_DIR.parent.parent.parent  # .hermes/integrations/telegram -> root
 
-# Load .env from integration directory first, then MARVIN root
+# Load .env from integration directory first, then Hermes root
 load_dotenv(SCRIPT_DIR / ".env")
-load_dotenv(MARVIN_ROOT / ".env")
+load_dotenv(HERMES_ROOT / ".env")
 
 from telegram import Update
 from telegram.ext import (
@@ -50,19 +50,19 @@ logger = logging.getLogger(__name__)
 
 # Paths
 DB_PATH = SCRIPT_DIR / "telegram.db"
-CLAUDE_MD_PATH = MARVIN_ROOT / "CLAUDE.md"
+CLAUDE_MD_PATH = HERMES_ROOT / "CLAUDE.md"
 
 # Tool definitions for Claude
 TOOLS = [
     {
         "name": "read_file",
-        "description": "Read the contents of a file from the MARVIN workspace. Use this to retrieve markdown files, code, research notes, etc.",
+        "description": "Read the contents of a file from the Hermes workspace. Use this to retrieve markdown files, code, research notes, etc.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "path": {
                     "type": "string",
-                    "description": "Path relative to MARVIN workspace (e.g., 'content/notes.md', 'state/current.md', 'CLAUDE.md')"
+                    "description": "Path relative to Hermes workspace (e.g., 'content/notes.md', 'state/current.md', 'CLAUDE.md')"
                 }
             },
             "required": ["path"]
@@ -70,13 +70,13 @@ TOOLS = [
     },
     {
         "name": "write_file",
-        "description": "Create or update a file in the MARVIN workspace. Use this to save content, create new documents, update notes, etc.",
+        "description": "Create or update a file in the Hermes workspace. Use this to save content, create new documents, update notes, etc.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "path": {
                     "type": "string",
-                    "description": "Path relative to MARVIN workspace where to save the file"
+                    "description": "Path relative to Hermes workspace where to save the file"
                 },
                 "content": {
                     "type": "string",
@@ -113,7 +113,7 @@ TOOLS = [
             "properties": {
                 "path": {
                     "type": "string",
-                    "description": "Directory path relative to MARVIN workspace (e.g., 'content', 'state', 'sessions')",
+                    "description": "Directory path relative to Hermes workspace (e.g., 'content', 'state', 'sessions')",
                     "default": "."
                 }
             },
@@ -128,7 +128,7 @@ TOOLS = [
             "properties": {
                 "path": {
                     "type": "string",
-                    "description": "Path relative to MARVIN workspace"
+                    "description": "Path relative to Hermes workspace"
                 },
                 "content": {
                     "type": "string",
@@ -154,13 +154,13 @@ TOOLS = [
     },
     {
         "name": "send_file",
-        "description": "Send a file from the MARVIN workspace as a Telegram attachment. Use this for long documents or any file the user asks for.",
+        "description": "Send a file from the Hermes workspace as a Telegram attachment. Use this for long documents or any file the user asks for.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "path": {
                     "type": "string",
-                    "description": "Path relative to MARVIN workspace (e.g., 'content/notes.md')"
+                    "description": "Path relative to Hermes workspace (e.g., 'content/notes.md')"
                 },
                 "caption": {
                     "type": "string",
@@ -249,8 +249,8 @@ class ConversationStore:
         conn.close()
 
 
-class MARVINBot:
-    """MARVIN Telegram Bot with tool use."""
+class HermesBot:
+    """Hermes Telegram Bot with tool use."""
 
     def __init__(self, token: str, allowed_user_ids: list[int]):
         """Initialize the bot.
@@ -276,21 +276,21 @@ class MARVINBot:
         self.claude = anthropic.Anthropic()
         self._pending_files = []  # Files to send after response
 
-        # Load MARVIN context
+        # Load Hermes context
         self.system_prompt = self._build_system_prompt()
 
         logger.info(f"Bot initialized with {len(allowed_user_ids)} authorized user(s)")
 
     def _build_system_prompt(self) -> str:
-        """Build the system prompt with MARVIN context."""
+        """Build the system prompt with Hermes context."""
         today = datetime.now().strftime("%Y-%m-%d")
-        prompt = f"""You are MARVIN, an AI assistant communicating via Telegram.
+        prompt = f"""You are Hermes, an AI assistant communicating via Telegram.
 
 **Today's date**: {today}
 
 ## Your Capabilities
 You have tools to:
-- **Read files** from the MARVIN workspace (state, content, sessions, etc.)
+- **Read files** from the Hermes workspace (state, content, sessions, etc.)
 - **Write/create files** to save content, notes, ideas
 - **Search** for files by name or content
 - **Fetch URLs** to get YouTube transcripts, Reddit posts, articles
@@ -304,7 +304,7 @@ You have tools to:
 - Remember conversation context
 
 ## Directory Structure
-Key locations in the MARVIN workspace:
+Key locations in the Hermes workspace:
 - `state/` - Current state and goals (current.md, goals.md)
 - `content/` - Notes, drafts, content
 - `sessions/` - Daily session logs
@@ -330,7 +330,7 @@ Key locations in the MARVIN workspace:
         return user_id in self.allowed_user_ids
 
     def _validate_path(self, path: str) -> Path:
-        """Validate and resolve a path, ensuring it's within MARVIN workspace.
+        """Validate and resolve a path, ensuring it's within Hermes workspace.
 
         Args:
             path: Relative path within workspace
@@ -342,20 +342,20 @@ Key locations in the MARVIN workspace:
             ValueError: If path is outside workspace or uses symlinks to escape
         """
         # Resolve the full path
-        file_path = (MARVIN_ROOT / path).resolve()
+        file_path = (HERMES_ROOT / path).resolve()
 
-        # Check it's within MARVIN_ROOT (handles .. traversal)
+        # Check it's within HERMES_ROOT (handles .. traversal)
         try:
-            file_path.relative_to(MARVIN_ROOT.resolve())
+            file_path.relative_to(HERMES_ROOT.resolve())
         except ValueError:
             raise ValueError("Access denied: path outside workspace")
 
         # Security: Check for symlink escape attacks
-        # A symlink could point outside MARVIN_ROOT even if the path looks valid
+        # A symlink could point outside HERMES_ROOT even if the path looks valid
         if file_path.is_symlink():
             target = file_path.resolve()
             try:
-                target.relative_to(MARVIN_ROOT.resolve())
+                target.relative_to(HERMES_ROOT.resolve())
             except ValueError:
                 raise ValueError("Access denied: symlink points outside workspace")
 
@@ -396,7 +396,7 @@ Key locations in the MARVIN workspace:
             return f"Error executing {tool_name}. Check logs for details."
 
     def _tool_read_file(self, path: str) -> str:
-        """Read a file from MARVIN workspace."""
+        """Read a file from Hermes workspace."""
         file_path = self._validate_path(path)
 
         if not file_path.exists():
@@ -426,14 +426,14 @@ Key locations in the MARVIN workspace:
         results = []
         query_lower = query.lower()
 
-        for path in MARVIN_ROOT.glob(file_pattern):
+        for path in HERMES_ROOT.glob(file_pattern):
             if not path.is_file():
                 continue
             # Skip hidden, venv, and node_modules
             if any(part.startswith('.') or part in ('venv', 'node_modules') for part in path.parts):
                 continue
 
-            rel_path = path.relative_to(MARVIN_ROOT)
+            rel_path = path.relative_to(HERMES_ROOT)
 
             # Check filename
             if query_lower in path.name.lower():
@@ -482,7 +482,7 @@ Key locations in the MARVIN workspace:
     def _tool_append_to_file(self, path: str, content: str) -> str:
         """Append content to a file."""
         # For append, validate parent directory for new files, or full path for existing
-        if (MARVIN_ROOT / path).exists():
+        if (HERMES_ROOT / path).exists():
             file_path = self._validate_path(path)
         else:
             parent_path = self._validate_path(str(Path(path).parent) if Path(path).parent != Path('.') else '.')
@@ -674,9 +674,9 @@ Key locations in the MARVIN workspace:
             return
 
         await update.message.reply_text(
-            "Hey! MARVIN here via Telegram. 🤖\n\n"
+            "Hey! Hermes here via Telegram. 🤖\n\n"
             "I can:\n"
-            "• Read and write files in your MARVIN workspace\n"
+            "• Read and write files in your Hermes workspace\n"
             "• Search for content across your notes\n"
             "• Fetch YouTube transcripts, Reddit posts, etc.\n"
             "• Save and organize content for you\n\n"
@@ -691,7 +691,7 @@ Key locations in the MARVIN workspace:
             return
 
         await update.message.reply_text(
-            "**MARVIN Commands:**\n\n"
+            "**Hermes Commands:**\n\n"
             "/save [topic] - Save conversation summary to session log\n"
             "/clear - Clear conversation history\n"
             "/status - Check bot status\n\n"
@@ -723,7 +723,7 @@ Key locations in the MARVIN workspace:
 
         history = self.store.get_history(update.effective_chat.id)
         await update.message.reply_text(
-            f"**MARVIN Status:**\n\n"
+            f"**Hermes Status:**\n\n"
             f"• Messages in history: {len(history)}\n"
             f"• Tools available: {len(TOOLS)}\n"
             f"• Authorized users: {len(self.allowed_user_ids)}",
@@ -751,11 +751,11 @@ Key locations in the MARVIN workspace:
 
         # Use Claude to summarize the conversation
         conversation_text = "\n".join([
-            f"{'User' if msg['role'] == 'user' else 'MARVIN'}: {msg['content'][:500]}"
+            f"{'User' if msg['role'] == 'user' else 'Hermes'}: {msg['content'][:500]}"
             for msg in history
         ])
 
-        summary_prompt = f"""Summarize this Telegram conversation between a user and MARVIN.
+        summary_prompt = f"""Summarize this Telegram conversation between a user and Hermes.
 Focus on:
 - Key topics discussed
 - Decisions made
@@ -785,7 +785,7 @@ Conversation:
         time_now = datetime.now().strftime("%H:%M")
 
         # Create sessions directory if it doesn't exist
-        sessions_dir = MARVIN_ROOT / "sessions"
+        sessions_dir = HERMES_ROOT / "sessions"
         sessions_dir.mkdir(parents=True, exist_ok=True)
 
         session_file = sessions_dir / f"telegram-{today}.md"
@@ -1016,8 +1016,8 @@ Conversation:
         app.add_handler(MessageHandler(filters.PHOTO, self.handle_photo))
 
         # Run
-        logger.info("Starting MARVIN Telegram bot...")
-        logger.info(f"Workspace: {MARVIN_ROOT}")
+        logger.info("Starting Hermes Telegram bot...")
+        logger.info(f"Workspace: {HERMES_ROOT}")
         app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
@@ -1026,7 +1026,7 @@ def main():
     import argparse
     import sys
 
-    parser = argparse.ArgumentParser(description="MARVIN Telegram Bot")
+    parser = argparse.ArgumentParser(description="Hermes Telegram Bot")
     parser.add_argument("--token", help="Telegram bot token (or set TELEGRAM_BOT_TOKEN env)")
     parser.add_argument("--user-id", type=int, action="append", dest="user_ids",
                         help="Allowed user ID (can be specified multiple times)")
@@ -1055,7 +1055,7 @@ def main():
         print("SECURITY ERROR: User authorization is required.")
         print("=" * 60)
         print()
-        print("The Telegram bot has full access to your MARVIN workspace.")
+        print("The Telegram bot has full access to your Hermes workspace.")
         print("You MUST specify which Telegram users are allowed to use it.")
         print()
         print("To find your Telegram user ID:")
@@ -1069,7 +1069,7 @@ def main():
         sys.exit(1)
 
     try:
-        bot = MARVINBot(token, allowed_users)
+        bot = HermesBot(token, allowed_users)
         bot.run()
     except ValueError as e:
         print(f"Error: {e}")

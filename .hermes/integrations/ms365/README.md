@@ -26,7 +26,7 @@ Anyone using Microsoft 365 for work or personal productivity who wants Claude to
 ## Setup
 
 ```bash
-./.marvin/integrations/ms365/setup.sh
+./.hermes/integrations/ms365/setup.sh
 ```
 
 The setup script will prompt for:
@@ -71,7 +71,7 @@ This integration can perform actions that affect others or can't be easily undon
 | Delete files | High | Data loss may be permanent |
 | Read emails/files | Low | No external impact |
 
-MARVIN will always confirm before performing high-risk actions.
+Hermes will always confirm before performing high-risk actions.
 
 ## Troubleshooting
 
