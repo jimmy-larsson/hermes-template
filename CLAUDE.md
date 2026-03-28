@@ -192,7 +192,7 @@ Hermes can monitor your calendar for patterns. Add detection rules here:
 | `hermes` | Open Hermes (Claude Code in this directory) |
 | `mcode` | Open Hermes in your IDE |
 
-### Slash Commands (inside MARVIN)
+### Slash Commands (inside Hermes)
 
 | Command | What It Does |
 |---------|--------------|

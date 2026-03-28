@@ -36,37 +36,37 @@ echo "Your personal data (goals, sessions, profile) will be preserved."
 echo "The template will be kept separate so you can get updates easily."
 echo ""
 
-# Ask for the location of their current MARVIN
+# Ask for the location of their current installation
 echo "Where is your current Hermes installation?"
 echo "(This is the folder with your CLAUDE.md, state/, sessions/, etc.)"
 echo ""
-read -p "Path to current Hermes [press Enter if this IS your current install]: " CURRENT_MARVIN
+read -p "Path to current Hermes [press Enter if this IS your current install]: " CURRENT_INSTALL
 
-if [[ -z "$CURRENT_MARVIN" ]]; then
-    CURRENT_MARVIN="$TEMPLATE_DIR"
+if [[ -z "$CURRENT_INSTALL" ]]; then
+    CURRENT_INSTALL="$TEMPLATE_DIR"
 fi
 
 # Expand ~ if present
-CURRENT_MARVIN="${CURRENT_MARVIN/#\~/$HOME}"
+CURRENT_INSTALL="${CURRENT_INSTALL/#\~/$HOME}"
 
-# Verify it looks like a MARVIN installation
-if [[ ! -f "$CURRENT_MARVIN/CLAUDE.md" ]]; then
-    print_color "$RED" "Error: Can't find CLAUDE.md in $CURRENT_MARVIN"
+# Verify it looks like a Hermes installation
+if [[ ! -f "$CURRENT_INSTALL/CLAUDE.md" ]]; then
+    print_color "$RED" "Error: Can't find CLAUDE.md in $CURRENT_INSTALL"
     print_color "$RED" "This doesn't look like a Hermes installation."
     exit 1
 fi
 
-print_color "$GREEN" "Found Hermes at: $CURRENT_MARVIN"
+print_color "$GREEN" "Found Hermes at: $CURRENT_INSTALL"
 
 # Check what user data exists
 echo ""
 echo "Found the following user data:"
-[[ -f "$CURRENT_MARVIN/CLAUDE.md" ]] && echo "  - CLAUDE.md (your profile)"
-[[ -d "$CURRENT_MARVIN/state" ]] && echo "  - state/ (goals and priorities)"
-[[ -d "$CURRENT_MARVIN/sessions" ]] && [[ "$(ls -A "$CURRENT_MARVIN/sessions" 2>/dev/null)" ]] && echo "  - sessions/ ($(ls "$CURRENT_MARVIN/sessions" | wc -l | tr -d ' ') session logs)"
-[[ -d "$CURRENT_MARVIN/reports" ]] && [[ "$(ls -A "$CURRENT_MARVIN/reports" 2>/dev/null)" ]] && echo "  - reports/ (weekly reports)"
-[[ -d "$CURRENT_MARVIN/content" ]] && [[ "$(ls -A "$CURRENT_MARVIN/content" 2>/dev/null)" ]] && echo "  - content/ (your content)"
-[[ -f "$CURRENT_MARVIN/.env" ]] && echo "  - .env (your secrets)"
+[[ -f "$CURRENT_INSTALL/CLAUDE.md" ]] && echo "  - CLAUDE.md (your profile)"
+[[ -d "$CURRENT_INSTALL/state" ]] && echo "  - state/ (goals and priorities)"
+[[ -d "$CURRENT_INSTALL/sessions" ]] && [[ "$(ls -A "$CURRENT_INSTALL/sessions" 2>/dev/null)" ]] && echo "  - sessions/ ($(ls "$CURRENT_INSTALL/sessions" | wc -l | tr -d ' ') session logs)"
+[[ -d "$CURRENT_INSTALL/reports" ]] && [[ "$(ls -A "$CURRENT_INSTALL/reports" 2>/dev/null)" ]] && echo "  - reports/ (weekly reports)"
+[[ -d "$CURRENT_INSTALL/content" ]] && [[ "$(ls -A "$CURRENT_INSTALL/content" 2>/dev/null)" ]] && echo "  - content/ (your content)"
+[[ -f "$CURRENT_INSTALL/.env" ]] && echo "  - .env (your secrets)"
 
 # Ask for workspace location
 echo ""
@@ -93,7 +93,7 @@ fi
 # Confirm before proceeding
 echo ""
 print_color "$YELLOW" "Migration plan:"
-echo "  From: $CURRENT_MARVIN"
+echo "  From: $CURRENT_INSTALL"
 echo "  To:   $WORKSPACE_DIR"
 echo "  Template: $TEMPLATE_DIR"
 echo ""
@@ -123,44 +123,44 @@ mkdir -p "$WORKSPACE_DIR/state"
 echo "Copying your personal data..."
 
 # CLAUDE.md - user's profile
-if [[ -f "$CURRENT_MARVIN/CLAUDE.md" ]]; then
-    cp "$CURRENT_MARVIN/CLAUDE.md" "$WORKSPACE_DIR/"
+if [[ -f "$CURRENT_INSTALL/CLAUDE.md" ]]; then
+    cp "$CURRENT_INSTALL/CLAUDE.md" "$WORKSPACE_DIR/"
     print_color "$GREEN" "  Copied: CLAUDE.md"
 fi
 
 # state/ - goals and priorities
-if [[ -d "$CURRENT_MARVIN/state" ]]; then
-    cp -r "$CURRENT_MARVIN/state/"* "$WORKSPACE_DIR/state/" 2>/dev/null || true
+if [[ -d "$CURRENT_INSTALL/state" ]]; then
+    cp -r "$CURRENT_INSTALL/state/"* "$WORKSPACE_DIR/state/" 2>/dev/null || true
     print_color "$GREEN" "  Copied: state/"
 fi
 
 # sessions/ - session logs
-if [[ -d "$CURRENT_MARVIN/sessions" ]] && [[ "$(ls -A "$CURRENT_MARVIN/sessions" 2>/dev/null)" ]]; then
-    cp -r "$CURRENT_MARVIN/sessions/"* "$WORKSPACE_DIR/sessions/" 2>/dev/null || true
+if [[ -d "$CURRENT_INSTALL/sessions" ]] && [[ "$(ls -A "$CURRENT_INSTALL/sessions" 2>/dev/null)" ]]; then
+    cp -r "$CURRENT_INSTALL/sessions/"* "$WORKSPACE_DIR/sessions/" 2>/dev/null || true
     print_color "$GREEN" "  Copied: sessions/"
 fi
 
 # reports/ - weekly reports
-if [[ -d "$CURRENT_MARVIN/reports" ]] && [[ "$(ls -A "$CURRENT_MARVIN/reports" 2>/dev/null)" ]]; then
-    cp -r "$CURRENT_MARVIN/reports/"* "$WORKSPACE_DIR/reports/" 2>/dev/null || true
+if [[ -d "$CURRENT_INSTALL/reports" ]] && [[ "$(ls -A "$CURRENT_INSTALL/reports" 2>/dev/null)" ]]; then
+    cp -r "$CURRENT_INSTALL/reports/"* "$WORKSPACE_DIR/reports/" 2>/dev/null || true
     print_color "$GREEN" "  Copied: reports/"
 fi
 
 # content/ - user content
-if [[ -d "$CURRENT_MARVIN/content" ]] && [[ "$(ls -A "$CURRENT_MARVIN/content" 2>/dev/null)" ]]; then
-    cp -r "$CURRENT_MARVIN/content/"* "$WORKSPACE_DIR/content/" 2>/dev/null || true
+if [[ -d "$CURRENT_INSTALL/content" ]] && [[ "$(ls -A "$CURRENT_INSTALL/content" 2>/dev/null)" ]]; then
+    cp -r "$CURRENT_INSTALL/content/"* "$WORKSPACE_DIR/content/" 2>/dev/null || true
     print_color "$GREEN" "  Copied: content/"
 fi
 
 # .env - secrets
-if [[ -f "$CURRENT_MARVIN/.env" ]]; then
-    cp "$CURRENT_MARVIN/.env" "$WORKSPACE_DIR/"
+if [[ -f "$CURRENT_INSTALL/.env" ]]; then
+    cp "$CURRENT_INSTALL/.env" "$WORKSPACE_DIR/"
     print_color "$GREEN" "  Copied: .env"
 fi
 
 # Custom commands (check for any that aren't in template)
-if [[ -d "$CURRENT_MARVIN/.claude/commands" ]]; then
-    for cmd_file in "$CURRENT_MARVIN/.claude/commands/"*.md; do
+if [[ -d "$CURRENT_INSTALL/.claude/commands" ]]; then
+    for cmd_file in "$CURRENT_INSTALL/.claude/commands/"*.md; do
         cmd_name=$(basename "$cmd_file")
         if [[ ! -f "$TEMPLATE_DIR/.claude/commands/$cmd_name" ]]; then
             cp "$cmd_file" "$WORKSPACE_DIR/.claude/commands/"
@@ -170,8 +170,8 @@ if [[ -d "$CURRENT_MARVIN/.claude/commands" ]]; then
 fi
 
 # Custom agents (check for any that aren't in template)
-if [[ -d "$CURRENT_MARVIN/.claude/agents" ]]; then
-    for agent_file in "$CURRENT_MARVIN/.claude/agents/"*.md; do
+if [[ -d "$CURRENT_INSTALL/.claude/agents" ]]; then
+    for agent_file in "$CURRENT_INSTALL/.claude/agents/"*.md; do
         agent_name=$(basename "$agent_file")
         if [[ ! -f "$TEMPLATE_DIR/.claude/agents/$agent_name" ]]; then
             cp "$agent_file" "$WORKSPACE_DIR/.claude/agents/"
@@ -181,8 +181,8 @@ if [[ -d "$CURRENT_MARVIN/.claude/agents" ]]; then
 fi
 
 # Custom skills (check for any that aren't in template)
-if [[ -d "$CURRENT_MARVIN/.claude/skills" ]]; then
-    for skill_file in "$CURRENT_MARVIN/.claude/skills/"*.md; do
+if [[ -d "$CURRENT_INSTALL/.claude/skills" ]]; then
+    for skill_file in "$CURRENT_INSTALL/.claude/skills/"*.md; do
         skill_name=$(basename "$skill_file")
         if [[ ! -f "$TEMPLATE_DIR/.claude/skills/$skill_name" ]]; then
             cp "$skill_file" "$WORKSPACE_DIR/.claude/skills/"
@@ -204,7 +204,7 @@ if [[ ! -d "$WORKSPACE_DIR/.git" ]]; then
     git add .
     git commit -m "Migrate to Hermes workspace architecture
 
-Migrated from: $CURRENT_MARVIN"
+Migrated from: $CURRENT_INSTALL"
     print_color "$GREEN" "Git repository initialized"
 fi
 
@@ -223,6 +223,6 @@ echo ""
 print_color "$YELLOW" "Important:"
 echo "  - Keep the template folder ($TEMPLATE_DIR) for updates"
 echo "  - Run /sync anytime to get new features"
-echo "  - Your old installation at $CURRENT_MARVIN can be deleted once you verify everything works"
+echo "  - Your old installation at $CURRENT_INSTALL can be deleted once you verify everything works"
 echo ""
 print_color "$GREEN" "Enjoy your upgraded Hermes!"
