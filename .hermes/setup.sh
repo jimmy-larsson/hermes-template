@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# MARVIN Setup Script
-# Interactive setup for your personal AI Chief of Staff
+# Hermes Setup Script
+# Interactive setup for your personal AI assistant
 
 set -e
 
@@ -31,14 +31,14 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Get the template directory (parent of .marvin where this script lives)
+# Get the template directory (parent of .hermes where this script lives)
 TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Default workspace location
-DEFAULT_WORKSPACE="$HOME/start"
+DEFAULT_WORKSPACE="$HOME/hermes"
 
-print_header "MARVIN Setup"
-echo "Welcome! Let's set up your personal AI Chief of Staff."
+print_header "Hermes Setup"
+echo "Welcome! Let's set up your personal AI assistant."
 echo "This will take about 5 minutes."
 echo ""
 
@@ -99,7 +99,7 @@ fi
 
 print_header "Phase 2: Workspace Location"
 
-echo "Where would you like your MARVIN workspace?"
+echo "Where would you like your Hermes workspace?"
 echo "This is where your data, goals, and session logs will live."
 echo ""
 echo "Default: $DEFAULT_WORKSPACE"
@@ -167,10 +167,10 @@ fi
 
 # Personality
 echo ""
-echo "How should MARVIN communicate with you?"
+echo "How should Hermes communicate with you?"
 echo "  1) Professional - Clear, direct, business-like"
 echo "  2) Casual - Friendly, relaxed, conversational"
-echo "  3) Sarcastic - Dry wit, sardonic, like the original MARVIN"
+echo "  3) Sarcastic - Dry wit, sardonic humor"
 read -p "Choose [1/2/3]: " PERSONALITY_CHOICE
 
 case $PERSONALITY_CHOICE in
@@ -180,7 +180,7 @@ case $PERSONALITY_CHOICE in
         ;;
     3)
         PERSONALITY="sarcastic"
-        PERSONALITY_DESC="Named after the Paranoid Android from Hitchhiker's Guide. Dry humor, mild existential commentary, competent pessimism. Gets things done, but wants you to know it's not thrilled about it."
+        PERSONALITY_DESC="Dry humor, mild existential commentary, competent pessimism. Gets things done, but wants you to know it's not thrilled about it."
         ;;
     *)
         PERSONALITY="casual"
@@ -233,8 +233,8 @@ mkdir -p "$WORKSPACE_DIR/sessions"
 mkdir -p "$WORKSPACE_DIR/reports"
 mkdir -p "$WORKSPACE_DIR/content"
 
-# Create .marvin-source file pointing to template
-echo "$TEMPLATE_DIR" > "$WORKSPACE_DIR/.marvin-source"
+# Create .hermes-source file pointing to template
+echo "$TEMPLATE_DIR" > "$WORKSPACE_DIR/.hermes-source"
 
 print_color "$GREEN" "Workspace created at: $WORKSPACE_DIR"
 
@@ -242,7 +242,7 @@ print_color "$GREEN" "Workspace created at: $WORKSPACE_DIR"
 # PHASE 5: Generate Files
 # ============================================================================
 
-print_header "Phase 5: Personalizing Your MARVIN"
+print_header "Phase 5: Personalizing Your Hermes"
 
 # Build employer line if provided
 EMPLOYER_LINE=""
@@ -254,11 +254,11 @@ fi
 
 # Generate CLAUDE.md in workspace
 cat > "$WORKSPACE_DIR/CLAUDE.md" << CLAUDE_EOF
-# MARVIN - AI Chief of Staff
+# Hermes - AI Assistant
 
-**MARVIN** = Manages Appointments, Reads Various Important Notifications
+**Hermes** -- AI Assistant Template
 
-This document is the primary context for Claude Code operating as MARVIN.
+This document is the primary context for Claude Code operating as Hermes.
 
 ---
 
@@ -272,7 +272,7 @@ $(echo -e "$GOALS")
 
 ---
 
-## Part 2: How MARVIN Behaves
+## Part 2: How Hermes Behaves
 
 ### Core Principles
 1. **Proactive by default** - Surface what you need to know before you ask
@@ -294,9 +294,9 @@ ${PERSONALITY_DESC}
 
 ### Directory Structure
 \`\`\`
-marvin/
+hermes/
 ├── CLAUDE.md              # This file (read on startup)
-├── .claude/               # MARVIN capabilities
+├── .claude/               # Hermes capabilities
 │   ├── commands/          # Slash commands (user-triggered)
 │   ├── agents/            # Subagent definitions (delegated work)
 │   └── skills/            # Reusable skills (contextual invocation)
@@ -340,10 +340,10 @@ marvin/
 
 ## Part 4: Evolution
 
-This system is designed to evolve. As you use MARVIN:
+This system is designed to evolve. As you use Hermes:
 - Update this file when processes change
 - Add new sections for new workflows
-- MARVIN adapts on next session
+- Hermes adapts on next session
 
 ---
 
@@ -383,7 +383,7 @@ Last updated: $(date +%Y-%m-%d)
 
 ## Active Priorities
 
-1. Get MARVIN set up and working
+1. Get Hermes set up and working
 2. [Add your priorities here]
 
 ## Open Threads
@@ -392,11 +392,11 @@ Last updated: $(date +%Y-%m-%d)
 
 ## Recent Context
 
-- Just set up MARVIN!
+- Just set up Hermes!
 
 ---
 
-*MARVIN updates this file at the end of each session.*
+*Hermes updates this file at the end of each session.*
 CURRENT_EOF
 
 print_color "$GREEN" "Created: state/current.md"
@@ -423,42 +423,33 @@ else
     SHELL_RC="$HOME/.profile"
 fi
 
-# Create the marvin function with ASCII art banner
+# Create the hermes function with ASCII art banner
 ALIAS_FUNCTION="
-# MARVIN - AI Chief of Staff
-marvin() {
-    echo -e '\e[1;33m███╗   ███╗    █████╗    ██████╗   ██╗   ██╗  ██╗   ███╗   ██╗   \e[0m'
-    echo -e '\e[1;33m████╗ ████║   ██╔══██╗   ██╔══██╗  ██║   ██║  ██║   ████╗  ██║   \e[0m'
-    echo -e '\e[1;33m██╔████╔██║   ███████║   ██████╔╝  ██║   ██║  ██║   ██╔██╗ ██║   \e[0m'
-    echo -e '\e[1;33m██║╚██╔╝██║   ██╔══██║   ██╔══██╗  ╚██╗ ██╔╝  ██║   ██║╚██╗██║   \e[0m'
-    echo -e '\e[1;33m██║ ╚═╝ ██║██╗██║  ██║██╗██║  ██║██╗╚████╔╝██╗██║██╗██║ ╚████║██╗\e[0m'
-    echo -e '\e[1;33m╚═╝     ╚═╝╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝ ╚═══╝ ╚═╝╚═╝╚═╝╚═╝  ╚═══╝╚═╝\e[0m'
-    echo ''
-    echo -e '\e[0;36m▖  ▖              ▄▖      ▘  ▗        ▗     \e[0m'
-    echo -e '\e[0;36m▛▖▞▌▀▌▛▌▀▌▛▌█▌▛▘  ▌▌▛▌▛▌▛▌▌▛▌▜▘▛▛▌█▌▛▌▜▘▛▘   \e[0m'
-    echo -e '\e[0;36m▌▝ ▌█▌▌▌█▌▙▌▙▖▄▌  ▛▌▙▌▙▌▙▌▌▌▌▐▖▌▌▌▙▖▌▌▐▖▄▌▗   \e[0m'
-    echo -e '\e[0;36m          ▄▌        ▌ ▌                   ▘    \e[0m'
-    echo -e '\e[0;36m▄▖     ▌    ▖▖    ▘        ▄▖         ▗     ▗   ▖ ▖  ▗ ▘▐▘▘    ▗ ▘      \e[0m'
-    echo -e '\e[0;36m▙▘█▌▀▌▛▌▛▘  ▌▌▀▌▛▘▌▛▌▌▌▛▘  ▐ ▛▛▌▛▌▛▌▛▘▜▘▀▌▛▌▜▘  ▛▖▌▛▌▜▘▌▜▘▌▛▘▀▌▜▘▌▛▌▛▌▛▘\e[0m'
-    echo -e '\e[0;36m▌▌▙▖█▌▙▌▄▌  ▚▘█▌▌ ▌▙▌▙▌▄▌  ▟▖▌▌▌▙▌▙▌▌ ▐▖█▌▌▌▐▖  ▌▝▌▙▌▐▖▌▐ ▌▙▖█▌▐▖▌▙▌▌▌▄▌\e[0m'
-    echo -e '\e[0;36m                                ▌                                       \e[0m'
+# Hermes - AI Assistant
+hermes() {
+    echo -e '\e[1;33m██╗  ██╗  ███████╗  ██████╗   ███╗   ███╗  ███████╗  ███████╗\e[0m'
+    echo -e '\e[1;33m██║  ██║  ██╔════╝  ██╔══██╗  ████╗ ████║  ██╔════╝  ██╔════╝\e[0m'
+    echo -e '\e[1;33m███████║  █████╗    ██████╔╝  ██╔████╔██║  █████╗    ███████╗\e[0m'
+    echo -e '\e[1;33m██╔══██║  ██╔══╝    ██╔══██╗  ██║╚██╔╝██║  ██╔══╝    ╚════██║\e[0m'
+    echo -e '\e[1;33m██║  ██║  ███████╗  ██║  ██║  ██║ ╚═╝ ██║  ███████╗  ███████║\e[0m'
+    echo -e '\e[1;33m╚═╝  ╚═╝  ╚══════╝  ╚═╝  ╚═╝  ╚═╝     ╚═╝  ╚══════╝  ╚══════╝\e[0m'
     echo ''
     cd \"$WORKSPACE_DIR\" && claude
 }
 "
 
-# Check if marvin alias already exists
-if grep -q "^marvin()" "$SHELL_RC" 2>/dev/null; then
-    print_color "$YELLOW" "MARVIN alias already exists in $SHELL_RC"
+# Check if hermes alias already exists
+if grep -q "^hermes()" "$SHELL_RC" 2>/dev/null; then
+    print_color "$YELLOW" "Hermes alias already exists in $SHELL_RC"
 else
     echo "$ALIAS_FUNCTION" >> "$SHELL_RC"
-    print_color "$GREEN" "Added 'marvin' command to $SHELL_RC"
+    print_color "$GREEN" "Added 'hermes' command to $SHELL_RC"
 fi
 
 # Create mcode function if IDE was specified
 if [[ -n "$IDE_CMD" ]]; then
     MCODE_FUNCTION="
-# MARVIN - Open in IDE
+# Hermes - Open in IDE
 mcode() {
     $IDE_CMD \"$WORKSPACE_DIR\"
 }
@@ -481,9 +472,7 @@ if [[ ! -d "$WORKSPACE_DIR/.git" ]]; then
     cd "$WORKSPACE_DIR"
     git init
     git add .
-    git commit -m "Initial MARVIN setup
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+    git commit -m "Initial Hermes setup"
     print_color "$GREEN" "Git repository initialized"
 else
     print_color "$YELLOW" "Git repository already exists"
@@ -513,16 +502,16 @@ print_color "$GREEN" "Base integrations configured!"
 
 print_header "Setup Complete!"
 
-echo "Your MARVIN is ready!"
+echo "Your Hermes is ready!"
 echo ""
 print_color "$CYAN" "Workspace: $WORKSPACE_DIR"
 print_color "$CYAN" "Template:  $TEMPLATE_DIR"
 echo ""
 echo "Available commands (open a new terminal first, or run: source $SHELL_RC)"
 echo ""
-print_color "$CYAN" "  marvin    - Start MARVIN (Claude Code in your workspace)"
+print_color "$CYAN" "  hermes    - Start Hermes (Claude Code in your workspace)"
 if [[ -n "$IDE_CMD" ]]; then
-    print_color "$CYAN" "  mcode     - Open MARVIN in $IDE_CMD"
+    print_color "$CYAN" "  mcode     - Open Hermes in $IDE_CMD"
 fi
 echo ""
 echo "Once Claude Code starts, type /start to begin your first session."
@@ -530,4 +519,4 @@ echo ""
 print_color "$YELLOW" "Important: Keep the template folder ($TEMPLATE_DIR)!"
 print_color "$YELLOW" "That's where you'll get updates. Run /sync to pull new features."
 echo ""
-print_color "$GREEN" "Enjoy your new AI Chief of Staff!"
+print_color "$GREEN" "Enjoy your new AI assistant!"
