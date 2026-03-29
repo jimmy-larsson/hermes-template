@@ -165,24 +165,23 @@ for user_id in $USER_IDS; do
 
     if [ -d "$WORKSPACE/.claude" ]; then
         info "Workspace for $user_id already exists — skipping"
-        continue
+    else
+        info "Creating workspace for $user_id"
+        mkdir -p "$WORKSPACE" "$USER_DIR/claude-state"
+
+        # Copy template files
+        cp -r "$TEMPLATE_DIR/.claude" "$WORKSPACE/.claude"
+        cp -r "$TEMPLATE_DIR/state" "$WORKSPACE/state"
+        cp "$TEMPLATE_DIR/.env.example" "$WORKSPACE/.env.example"
+        mkdir -p "$WORKSPACE/sessions" "$WORKSPACE/reports" "$WORKSPACE/content" \
+                 "$WORKSPACE/meetings" "$WORKSPACE/research" "$WORKSPACE/decisions"
+
+        # Generate personalized CLAUDE.md
+        USER_NAME=$(python3 "$PARSER" "$CONFIG" "user.$user_id.name")
+        sed "s/\[Your Name\]/$USER_NAME/g" "$TEMPLATE_DIR/CLAUDE.md" > "$WORKSPACE/CLAUDE.md"
     fi
 
-    info "Creating workspace for $user_id"
-    mkdir -p "$WORKSPACE" "$USER_DIR/claude-state"
-
-    # Copy template files
-    cp -r "$TEMPLATE_DIR/.claude" "$WORKSPACE/.claude"
-    cp -r "$TEMPLATE_DIR/state" "$WORKSPACE/state"
-    cp "$TEMPLATE_DIR/.env.example" "$WORKSPACE/.env.example"
-    mkdir -p "$WORKSPACE/sessions" "$WORKSPACE/reports" "$WORKSPACE/content" \
-             "$WORKSPACE/meetings" "$WORKSPACE/research" "$WORKSPACE/decisions"
-
-    # Generate personalized CLAUDE.md
-    USER_NAME=$(python3 "$PARSER" "$CONFIG" "user.$user_id.name")
-    sed "s/\[Your Name\]/$USER_NAME/g" "$TEMPLATE_DIR/CLAUDE.md" > "$WORKSPACE/CLAUDE.md"
-
-    # Generate .mcp.json (if Mimir enabled)
+    # Generate .mcp.json (if Mimir enabled) — always update, even for existing workspaces
     if [ "$MIMIR_ENABLED" = "true" ]; then
         KEY_VAR="API_KEY_$(echo "$user_id" | tr '[:lower:]' '[:upper:]')"
         API_KEY="${!KEY_VAR}"
@@ -274,20 +273,25 @@ done
 
 # ── Phase 10: Build and start ───────────────────────────────────────────────
 
-info "Building containers..."
-cd "$DEPLOY_DIR"
-docker compose build
+if command -v docker &>/dev/null && docker compose version &>/dev/null; then
+    info "Building containers..."
+    cd "$DEPLOY_DIR"
+    docker compose build
 
-if [ "$MIMIR_ENABLED" = "true" ] && [ -f "$DEPLOY_DIR/data/mimir/seed.sql" ]; then
-    info "Starting Mimir and seeding database..."
-    docker compose up -d mimir
-    sleep 2
-    docker compose exec mimir mimir-mcp seed --file /data/seed.sql 2>/dev/null || \
-        warn "Mimir seed skipped (may already be seeded)"
+    if [ "$MIMIR_ENABLED" = "true" ] && [ -f "$DEPLOY_DIR/data/mimir/seed.sql" ]; then
+        info "Starting Mimir and seeding database..."
+        docker compose up -d mimir
+        sleep 2
+        docker compose exec mimir mimir-mcp seed --file /data/seed.sql 2>/dev/null || \
+            warn "Mimir seed skipped (may already be seeded)"
+    fi
+
+    info "Starting all containers..."
+    docker compose up -d
+else
+    warn "Docker not available — skipping build and start."
+    warn "Run 'docker compose up -d' from $DEPLOY_DIR when ready."
 fi
-
-info "Starting all containers..."
-docker compose up -d
 
 # ── Phase 11: Initialize git ────────────────────────────────────────────────
 
