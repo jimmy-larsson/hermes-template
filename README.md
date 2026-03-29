@@ -141,6 +141,59 @@ cd marvin-template
 
 The script copies your profile, goals, sessions, reports, and custom skills to a new workspace. Nothing is deleted from your old installation. Verify the new workspace works, then clean up the old one.
 
+## Multi-User Deployment
+
+Run multiple isolated Hermes instances on a single server with optional shared memory.
+
+### Quick Start
+
+```bash
+# First run — creates config
+./deploy/setup.sh ~/hermes
+
+# Edit config
+vim ~/hermes/config.yml
+
+# Second run — generates and starts everything
+./deploy/setup.sh ~/hermes
+```
+
+### Requirements
+
+- Docker and Docker Compose v2
+- Python 3 (for config parsing)
+- SSH access to the host (for user access)
+
+### What setup.sh does
+
+1. Reads `config.yml` — users, scopes, Mimir toggle
+2. Generates `docker-compose.yml` — one container per user + optional Mimir
+3. Creates per-user workspaces — Hermes template copy with personalized CLAUDE.md
+4. Generates API keys and `.mcp.json` (if Mimir enabled)
+5. Builds and starts Docker containers
+
+### Accessing your container
+
+```bash
+# From the host — attach to tmux session
+docker exec -it jimmy-hermes tmux attach -t hermes
+
+# Or source the wrapper and use the hermes command
+source ~/hermes/data/users/jimmy/hermes-wrapper.sh
+hermes            # attach to tmux
+hermes research   # open named Claude Code session
+```
+
+### Adding a user
+
+1. Edit `~/hermes/config.yml` — add user entry
+2. Re-run `./deploy/setup.sh ~/hermes`
+3. New container starts, existing ones untouched
+
+### Enabling Mimir (shared memory)
+
+Set `mimir.enabled: true` in config.yml and re-run setup.sh. See [Mimir docs](https://github.com/jimmy-larsson/mimir) for details.
+
 ## Contributing
 
 Hermes welcomes contributions in three areas:
