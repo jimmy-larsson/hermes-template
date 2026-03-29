@@ -1,0 +1,46 @@
+# Hermes Multi-User Deployment Configuration
+#
+# Edit this file, then run setup.sh to generate the deployment.
+# Re-run setup.sh after changes to add users — it's idempotent.
+
+# Mimir: Structured memory MCP server. When enabled, all users share
+# a persistent memory system with tasks, facts, projects, and scopes.
+# When disabled, each user has independent file-based state.
+# Install Mimir: pip install mimir-mcp or docker pull mimir-mcp
+# Docs: https://github.com/jimmy-larsson/mimir
+mimir:
+  enabled: false
+  port: 8100
+
+# Users: Each user gets their own container running Claude Code.
+# - id: Unix-safe identifier (lowercase, no spaces)
+# - name: Display name
+# - admin: true/false (Mimir admin privileges)
+# - scopes: List of Mimir scopes this user can access
+users:
+  - id: jimmy
+    name: Jimmy
+    admin: true
+    scopes:
+      - jimmy
+      - household
+  - id: alex
+    name: Alex
+    admin: false
+    scopes:
+      - alex
+      - household
+
+# Scopes: Access groups for organizing shared data.
+# Only relevant when Mimir is enabled.
+# Each user should have a personal scope matching their id.
+scopes:
+  - id: jimmy
+    name: Jimmy
+    description: Jimmy's personal scope
+  - id: alex
+    name: Alex
+    description: Alex's personal scope
+  - id: household
+    name: Household
+    description: Shared household scope
