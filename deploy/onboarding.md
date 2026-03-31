@@ -70,24 +70,28 @@ This shows the default example config. Use it as reference for the structure but
 
 ## Step 4: Configure users
 
-Ask conversationally:
+Collect users one at a time. Ask for **one piece of information per message** — don't bundle multiple questions.
 
-> "Who will be using this? Let's add your users one at a time.
->
-> For each user I need:
-> - **ID** — lowercase, no spaces (e.g., `jimmy`)
-> - **Display name** — their real name
-> - **Admin** — should they have admin privileges? (for managing scopes in Mimir)
->
-> Who's the first user?"
+Start with:
 
-Collect users one at a time. After each user, ask:
+> "First, let's set up the users. What's the name of the first user?"
 
-> "Got it — added {name} ({id}). Anyone else?"
+Wait for the name. Then **automatically derive the user ID** (lowercase, spaces replaced with hyphens) and ask about their role:
 
-Continue until the user says they're done. Require at least one user.
+> "Got it — I'll use `jimmy` as the user ID. Is Jimmy an admin or a regular user?
+> 1. **Admin** — can manage scopes and users in Mimir
+> 2. **Regular** — standard access"
 
-Store the collected users as a list. Each user has: id, name, admin (true/false).
+Wait for the answer. Then confirm and ask for more:
+
+> "Added Jimmy (`jimmy`, admin). Any more users?"
+
+If yes, repeat:
+> "What's the next user's name?"
+
+Then derive ID, ask admin/regular, confirm, ask for more. Continue until the user says they're done. Require at least one user.
+
+Store the collected users as a list. Each user has: id (auto-derived from name), name, admin (true/false).
 
 ---
 
@@ -209,7 +213,7 @@ Report progress to the user as the script runs. If Docker isn't available, note 
 
 ---
 
-## Step 9: Claude auth
+## Step 9: Claude Code authentication
 
 Check if the shared auth directory has files:
 
@@ -217,26 +221,35 @@ Check if the shared auth directory has files:
 ls -A DEPLOY_PATH/data/shared/claude-auth/
 ```
 
-If empty, guide the user:
+If empty, ask conversationally:
 
-> "One last thing — your containers need Claude Code authentication.
+> "Next up: Claude Code authentication for the containers.
 >
-> You have two options:
-> 1. **Copy your existing auth** — run this to share your current login with all containers:
->    ```
->    cp ~/.claude/auth* DEPLOY_PATH/data/shared/claude-auth/ 2>/dev/null
->    cp ~/.claude/credentials* DEPLOY_PATH/data/shared/claude-auth/ 2>/dev/null
->    ```
->    Then restart containers: `cd DEPLOY_PATH && docker compose restart`
->
-> 2. **Login per container** — each user logs in the first time they connect:
->    ```
->    docker exec -it USER-hermes bash -lc 'claude login'
->    ```
->
-> Which approach do you prefer?"
+> How would you like to handle auth?
+> 1. **Share your current login** — copies your credentials to all containers
+> 2. **Login per container** — each user runs `claude login` the first time they connect"
 
-If files already exist, skip this step.
+If the user chooses option 1, copy the credentials:
+
+```bash
+cp ~/.claude/.credentials.json DEPLOY_PATH/data/shared/claude-auth/
+```
+
+Verify the copy worked:
+
+```bash
+ls -la DEPLOY_PATH/data/shared/claude-auth/
+```
+
+If the file exists, restart containers to pick up the auth:
+
+```bash
+cd DEPLOY_PATH && docker compose restart
+```
+
+If the user chooses option 2, no action needed — just note that users will need to run `claude login` inside their container on first connect.
+
+If files already exist in the auth directory, skip this step.
 
 ---
 

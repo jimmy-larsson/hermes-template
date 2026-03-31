@@ -26,7 +26,7 @@ Display this reference:
 | /status   | Check integration & workspace health|
 | /help     | Show this help guide                |
 | /sync     | Get updates from Hermes template    |
-| /deploy   | Set up multi-user deployment        |
+| /deploy   | Set up or manage multi-user deployment |
 ```
 
 ### 2. Show Current Integrations

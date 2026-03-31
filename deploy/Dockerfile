@@ -1,7 +1,14 @@
 FROM debian:bookworm-slim
 
+# Switch apt to HTTPS — some hosts block outbound port 80
+# bookworm-slim lacks ca-certificates, so bootstrap with verification disabled
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get -o Acquire::https::Verify-Peer=false update \
+    && apt-get -o Acquire::https::Verify-Peer=false install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash curl git tmux ca-certificates python3 python3-pip \
+    bash curl git tmux python3 python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js (Claude Code dependency)

@@ -73,7 +73,7 @@ USERS_JSON=$(python3 "$PARSER" "$CONFIG" users)
 SCOPES_JSON=$(python3 "$PARSER" "$CONFIG" scopes)
 
 info "Mimir: $MIMIR_ENABLED"
-info "Users: $USER_IDS"
+info "Users: $(echo $USER_IDS | sed 's/ /, /g')"
 
 # ── Phase 4: Generate API keys (.env) ───────────────────────────────────────
 
@@ -252,14 +252,16 @@ AUTH_DIR="$DEPLOY_DIR/data/shared/claude-auth"
 if [ ! "$(ls -A "$AUTH_DIR" 2>/dev/null)" ]; then
     echo ""
     warn "Claude Code auth not yet configured."
-    warn "Run 'claude login' now, then copy auth files:"
-    warn "  cp ~/.claude/auth* $AUTH_DIR/"
-    warn "  cp ~/.claude/credentials* $AUTH_DIR/ 2>/dev/null"
+    warn "Copy your credentials to share with all containers:"
+    warn "  cp ~/.claude/.credentials.json $AUTH_DIR/"
     warn ""
-    warn "After copying, re-run this script to continue."
-    warn "Or skip for now — users can login inside their containers."
+    warn "Or skip — users can run 'claude login' inside their containers."
     echo ""
-    read -rp "Press Enter to continue without auth, or Ctrl+C to stop and login first... "
+    if [ -t 0 ]; then
+        read -rp "Press Enter to continue without auth, or Ctrl+C to stop and copy first... "
+    else
+        warn "Non-interactive mode — continuing without auth."
+    fi
 fi
 
 # ── Phase 9: Generate host wrapper scripts ──────────────────────────────────
