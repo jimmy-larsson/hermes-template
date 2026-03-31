@@ -126,8 +126,10 @@ if [ "$MIMIR_ENABLED" = "true" ]; then
     ports: ["\${MIMIR_PORT:-$MIMIR_PORT}:8100"]
     volumes:
       - ./data/mimir/data:/data
+      - ./data/mimir/seed.sql:/data/seed.sql:ro
     environment:
       - MIMIR_DB_PATH=/data/mimir.db
+      - MIMIR_SEED_FILE=/data/seed.sql
       - MIMIR_PORT=8100
 
 MIMIR
@@ -279,14 +281,6 @@ if command -v docker &>/dev/null && docker compose version &>/dev/null; then
     info "Building containers..."
     cd "$DEPLOY_DIR"
     docker compose build
-
-    if [ "$MIMIR_ENABLED" = "true" ] && [ -f "$DEPLOY_DIR/data/mimir/seed.sql" ]; then
-        info "Starting Mimir and seeding database..."
-        docker compose up -d mimir
-        sleep 2
-        docker compose exec mimir mimir-mcp seed --file /data/seed.sql 2>/dev/null || \
-            warn "Mimir seed skipped (may already be seeded)"
-    fi
 
     info "Starting all containers..."
     docker compose up -d
