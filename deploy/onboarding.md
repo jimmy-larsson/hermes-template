@@ -221,40 +221,23 @@ Report progress to the user as the script runs. If Docker isn't available, note 
 
 ## Step 9: Claude Code authentication
 
-Check if shared auth is already configured:
+The compose file automatically mounts `~/.claude/.credentials.json` (read-only) from the host into every user container. **No manual copy is needed.**
 
-```bash
-ls -A DEPLOY_PATH/data/shared/claude-auth/
-```
+Check if credentials exist on the host:
 
-If empty, ask conversationally. **Do NOT read or display the credentials file.**
-
-> "Next up: Claude Code authentication for the containers.
->
-> How would you like to handle auth?
-> 1. **Share your current login** — mounts your `~/.claude/.credentials.json` (read-only) into all user containers so they share the same Anthropic account. Credentials stay on the host and update automatically when you re-authenticate.
-> 2. **Login per container** — each user runs `claude login` the first time they connect. Use this if users have separate Anthropic accounts."
-
-If the user chooses option 1:
-
-1. Verify the credentials file exists on the host:
 ```bash
 test -f ~/.claude/.credentials.json && echo "Found" || echo "Not found"
 ```
 
-2. If found, copy it to the shared auth directory (containers mount this volume):
-```bash
-cp ~/.claude/.credentials.json DEPLOY_PATH/data/shared/claude-auth/
-```
+If found:
 
-3. Restart only user containers (Mimir doesn't need Claude credentials):
-```bash
-cd DEPLOY_PATH && docker compose restart $(docker compose ps --format '{{.Service}}' | grep -v mimir)
-```
+> "Your Claude Code credentials (`~/.claude/.credentials.json`) are automatically shared with all containers via a read-only mount. When you re-authenticate on the host (`claude login`), containers pick up the new credentials on restart. No action needed."
 
-If the user chooses option 2, no action needed — just note that users will need to run `claude login` inside their container on first connect.
+If not found:
 
-If files already exist in the auth directory, skip this step.
+> "No Claude Code credentials found on the host. Each user will need to run `claude login` inside their container on first connect.
+>
+> To share credentials later, run `claude login` on the host — the containers mount `~/.claude/.credentials.json` automatically."
 
 ---
 
