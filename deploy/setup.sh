@@ -27,6 +27,333 @@ NC='\033[0m'
 info()  { echo -e "${GREEN}==>${NC} $1"; }
 warn()  { echo -e "${YELLOW}==>${NC} $1"; }
 error() { echo -e "${RED}==>${NC} $1" >&2; }
+pass()  { echo -e "  ${GREEN}✓${NC} $1"; }
+fail()  { echo -e "  ${RED}✗${NC} $1"; }
+
+# ── Validation functions ──────────────────────────────────────────────────
+
+validate_config() {
+    local config="$1"
+    local errors=0
+    echo ""
+    info "Validating config.yml..."
+
+    # YAML parses at all
+    if ! python3 "$PARSER" "$config" mimir.enabled >/dev/null 2>&1; then
+        fail "config.yml failed to parse"; return 1
+    fi
+    pass "YAML parses successfully"
+
+    # Mimir section exists
+    local mimir_enabled
+    mimir_enabled=$(python3 "$PARSER" "$config" mimir.enabled 2>/dev/null || echo "")
+    if [ -z "$mimir_enabled" ]; then
+        fail "Missing mimir.enabled"; errors=$((errors + 1))
+    elif [ "$mimir_enabled" != "true" ] && [ "$mimir_enabled" != "false" ]; then
+        fail "mimir.enabled must be true or false, got: $mimir_enabled"; errors=$((errors + 1))
+    else
+        pass "mimir.enabled: $mimir_enabled"
+    fi
+
+    if [ "$mimir_enabled" = "true" ]; then
+        local mimir_port
+        mimir_port=$(python3 "$PARSER" "$config" mimir.port 2>/dev/null || echo "")
+        if [ -z "$mimir_port" ] || ! [[ "$mimir_port" =~ ^[0-9]+$ ]]; then
+            fail "mimir.port must be a number, got: '$mimir_port'"; errors=$((errors + 1))
+        else
+            pass "mimir.port: $mimir_port"
+        fi
+    fi
+
+    # Users exist and are valid
+    local user_ids
+    user_ids=$(python3 "$PARSER" "$config" user_ids 2>/dev/null || echo "")
+    if [ -z "$user_ids" ]; then
+        fail "No users defined"; errors=$((errors + 1))
+    else
+        local user_count=$(echo $user_ids | wc -w)
+        pass "Users: $user_ids ($user_count total)"
+    fi
+
+    # Each user has required fields
+    for uid in $user_ids; do
+        local uname
+        uname=$(python3 "$PARSER" "$config" "user.$uid.name" 2>/dev/null || echo "")
+        if [ -z "$uname" ]; then
+            fail "User '$uid' missing name"; errors=$((errors + 1))
+        fi
+
+        local uadmin
+        uadmin=$(python3 "$PARSER" "$config" "user.$uid.admin" 2>/dev/null || echo "")
+        if [ -z "$uadmin" ]; then
+            fail "User '$uid' missing admin field"; errors=$((errors + 1))
+        fi
+
+        # User ID format: lowercase, no spaces
+        if ! [[ "$uid" =~ ^[a-z][a-z0-9_-]*$ ]]; then
+            fail "User ID '$uid' invalid (must be lowercase, start with letter, no spaces)"; errors=$((errors + 1))
+        fi
+    done
+
+    # Scopes exist
+    local scopes_json
+    scopes_json=$(python3 "$PARSER" "$config" scopes 2>/dev/null || echo "[]")
+    local scope_ids
+    scope_ids=$(echo "$scopes_json" | python3 -c "import json,sys; [print(s['id']) for s in json.load(sys.stdin)]" 2>/dev/null)
+    if [ -z "$scope_ids" ]; then
+        if [ "$mimir_enabled" = "true" ]; then
+            fail "No scopes defined but Mimir is enabled"; errors=$((errors + 1))
+        fi
+    else
+        pass "Scopes: $(echo $scope_ids | tr '\n' ' ')"
+    fi
+
+    # Each user's scopes reference existing scopes
+    if [ "$mimir_enabled" = "true" ] && [ -n "$scope_ids" ]; then
+        local users_json
+        users_json=$(python3 "$PARSER" "$config" users 2>/dev/null || echo "[]")
+        local bad_refs
+        bad_refs=$(echo "$users_json" | python3 -c "
+import json, sys
+users = json.load(sys.stdin)
+scope_set = set('''$scope_ids'''.split())
+for u in users:
+    for s in u.get('scopes', []):
+        if s not in scope_set:
+            print(f\"User '{u['id']}' references undefined scope '{s}'\")
+" 2>/dev/null)
+        if [ -n "$bad_refs" ]; then
+            while IFS= read -r line; do
+                fail "$line"; errors=$((errors + 1))
+            done <<< "$bad_refs"
+        else
+            pass "All user scope references are valid"
+        fi
+    fi
+
+    # Check for duplicate user IDs
+    local dupes
+    dupes=$(echo $user_ids | tr ' ' '\n' | sort | uniq -d)
+    if [ -n "$dupes" ]; then
+        fail "Duplicate user IDs: $dupes"; errors=$((errors + 1))
+    fi
+
+    # Check for duplicate scope IDs
+    if [ -n "$scope_ids" ]; then
+        dupes=$(echo "$scope_ids" | sort | uniq -d)
+        if [ -n "$dupes" ]; then
+            fail "Duplicate scope IDs: $dupes"; errors=$((errors + 1))
+        fi
+    fi
+
+    if [ $errors -gt 0 ]; then
+        error "Config validation failed with $errors error(s)"
+        return 1
+    fi
+    pass "Config validation passed"
+    echo ""
+    return 0
+}
+
+validate_generated_files() {
+    local deploy_dir="$1"
+    local user_ids="$2"
+    local mimir_enabled="$3"
+    local errors=0
+    echo ""
+    info "Validating generated files..."
+
+    # .env has API keys for all users
+    local env_file="$deploy_dir/.env"
+    if [ ! -f "$env_file" ]; then
+        fail "Missing .env file"; errors=$((errors + 1))
+    else
+        for uid in $user_ids; do
+            local key_var="API_KEY_$(echo "$uid" | tr '[:lower:]' '[:upper:]')"
+            if grep -q "^${key_var}=" "$env_file" 2>/dev/null; then
+                pass ".env has API key for $uid"
+            else
+                fail ".env missing API key for $uid ($key_var)"; errors=$((errors + 1))
+            fi
+        done
+    fi
+
+    # docker-compose.yml has all services
+    local compose="$deploy_dir/docker-compose.yml"
+    if [ ! -f "$compose" ]; then
+        fail "Missing docker-compose.yml"; errors=$((errors + 1))
+    else
+        for uid in $user_ids; do
+            if grep -q "${uid}-hermes:" "$compose"; then
+                pass "docker-compose.yml has ${uid}-hermes service"
+            else
+                fail "docker-compose.yml missing ${uid}-hermes service"; errors=$((errors + 1))
+            fi
+        done
+        if [ "$mimir_enabled" = "true" ]; then
+            if grep -q "mimir:" "$compose"; then
+                pass "docker-compose.yml has mimir service"
+            else
+                fail "docker-compose.yml missing mimir service"; errors=$((errors + 1))
+            fi
+        fi
+    fi
+
+    # Each user has workspace and .mcp.json
+    for uid in $user_ids; do
+        local workspace="$deploy_dir/data/users/$uid/workspace"
+        if [ -d "$workspace" ]; then
+            pass "$uid workspace exists"
+        else
+            fail "$uid workspace missing at $workspace"; errors=$((errors + 1))
+        fi
+
+        if [ -f "$workspace/CLAUDE.md" ]; then
+            pass "$uid CLAUDE.md exists"
+        else
+            fail "$uid CLAUDE.md missing"; errors=$((errors + 1))
+        fi
+
+        if [ "$mimir_enabled" = "true" ]; then
+            local mcp_json="$workspace/.mcp.json"
+            if [ -f "$mcp_json" ]; then
+                # Verify it contains a valid API key (not a placeholder)
+                if grep -q "%%API_KEY%%" "$mcp_json" 2>/dev/null; then
+                    fail "$uid .mcp.json still has placeholder %%API_KEY%%"; errors=$((errors + 1))
+                else
+                    pass "$uid .mcp.json configured"
+                fi
+            else
+                fail "$uid .mcp.json missing"; errors=$((errors + 1))
+            fi
+        fi
+    done
+
+    # Seed file (if Mimir enabled)
+    if [ "$mimir_enabled" = "true" ]; then
+        local seed="$deploy_dir/data/mimir/seed.sql"
+        if [ ! -f "$seed" ]; then
+            fail "Missing seed.sql"; errors=$((errors + 1))
+        else
+            for uid in $user_ids; do
+                if grep -q "'$uid'" "$seed"; then
+                    pass "seed.sql has user $uid"
+                else
+                    fail "seed.sql missing user $uid"; errors=$((errors + 1))
+                fi
+            done
+            # Check activity cursors exist for all users
+            for uid in $user_ids; do
+                if grep -q "activity_cursor.*'$uid'" "$seed"; then
+                    pass "seed.sql has activity cursor for $uid"
+                else
+                    fail "seed.sql missing activity cursor for $uid"; errors=$((errors + 1))
+                fi
+            done
+        fi
+    fi
+
+    if [ $errors -gt 0 ]; then
+        error "File validation failed with $errors error(s)"
+        return 1
+    fi
+    pass "File validation passed"
+    echo ""
+    return 0
+}
+
+validate_runtime() {
+    local deploy_dir="$1"
+    local user_ids="$2"
+    local mimir_enabled="$3"
+    local mimir_port="$4"
+    local errors=0
+    echo ""
+    info "Validating runtime..."
+
+    # All containers are running
+    for uid in $user_ids; do
+        local status
+        status=$(docker inspect -f '{{.State.Status}}' "${uid}-hermes" 2>/dev/null || echo "not found")
+        if [ "$status" = "running" ]; then
+            pass "${uid}-hermes container running"
+        else
+            fail "${uid}-hermes container: $status"; errors=$((errors + 1))
+        fi
+    done
+
+    if [ "$mimir_enabled" = "true" ]; then
+        # Mimir container running
+        local status
+        status=$(docker inspect -f '{{.State.Status}}' mimir 2>/dev/null || echo "not found")
+        if [ "$status" = "running" ]; then
+            pass "mimir container running"
+        else
+            fail "mimir container: $status"; errors=$((errors + 1))
+        fi
+
+        # Mimir responds on port
+        sleep 2  # give it a moment to start
+        if curl -sf "http://localhost:$mimir_port/sse" -m 3 -o /dev/null 2>/dev/null; then
+            pass "mimir responding on port $mimir_port"
+        else
+            fail "mimir not responding on port $mimir_port"; errors=$((errors + 1))
+        fi
+
+        # Each user's API key authenticates
+        local env_file="$deploy_dir/.env"
+        set -a; source "$env_file"; set +a
+        for uid in $user_ids; do
+            local key_var="API_KEY_$(echo "$uid" | tr '[:lower:]' '[:upper:]')"
+            local api_key="${!key_var}"
+            local response
+            response=$(curl -sf "http://localhost:$mimir_port/sse" \
+                -H "x-api-key: $api_key" -m 3 2>/dev/null || echo "failed")
+            if [ "$response" != "failed" ]; then
+                pass "$uid API key authenticates"
+            else
+                # SSE may not return clean — check if Mimir at least accepts the connection
+                if curl -sf "http://localhost:$mimir_port/sse" \
+                    -H "x-api-key: $api_key" -m 3 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q "200"; then
+                    pass "$uid API key authenticates"
+                else
+                    fail "$uid API key rejected"; errors=$((errors + 1))
+                fi
+            fi
+        done
+
+        # Seed data loaded — check via Mimir API by querying the DB directly
+        local user_count
+        user_count=$(docker exec mimir python3 -c "
+import sqlite3
+c = sqlite3.connect('/data/mimir.db')
+print(c.execute('SELECT COUNT(*) FROM users').fetchone()[0])
+" 2>/dev/null || echo "0")
+        local expected_count=$(echo $user_ids | wc -w)
+        if [ "$user_count" = "$expected_count" ]; then
+            pass "Seed data loaded ($user_count users in DB)"
+        else
+            fail "Seed data: expected $expected_count users, found $user_count"; errors=$((errors + 1))
+        fi
+    fi
+
+    # tmux session exists in each container
+    for uid in $user_ids; do
+        if docker exec "${uid}-hermes" tmux has-session -t hermes 2>/dev/null; then
+            pass "${uid}-hermes tmux session exists"
+        else
+            fail "${uid}-hermes tmux session missing"; errors=$((errors + 1))
+        fi
+    done
+
+    if [ $errors -gt 0 ]; then
+        error "Runtime validation failed with $errors error(s)"
+        return 1
+    fi
+    pass "Runtime validation passed"
+    echo ""
+    return 0
+}
 
 # ── Connect mode: install remote wrapper only ─────────────────────────────
 
@@ -193,6 +520,10 @@ SCOPES_JSON=$(python3 "$PARSER" "$CONFIG" scopes)
 
 info "Mimir: $MIMIR_ENABLED"
 info "Users: $(echo $USER_IDS | sed 's/ /, /g')"
+
+# ── Checkpoint: Validate config ────────────────────────────────────────────
+
+validate_config "$CONFIG" || exit 1
 
 # ── Phase 4: Generate API keys (.env) ───────────────────────────────────────
 
@@ -367,6 +698,10 @@ for u in json.load(sys.stdin):
     fi
 fi
 
+# ── Checkpoint: Validate generated files ───────────────────────────────────
+
+validate_generated_files "$DEPLOY_DIR" "$USER_IDS" "$MIMIR_ENABLED" || exit 1
+
 # ── Phase 8: Claude auth ────────────────────────────────────────────────────
 
 AUTH_DIR="$DEPLOY_DIR/data/shared/claude-auth"
@@ -430,6 +765,12 @@ if command -v docker &>/dev/null && docker compose version &>/dev/null; then
 else
     warn "Docker not available — skipping build and start."
     warn "Run 'docker compose up -d' from $DEPLOY_DIR when ready."
+fi
+
+# ── Checkpoint: Validate runtime ───────────────────────────────────────────
+
+if command -v docker &>/dev/null; then
+    validate_runtime "$DEPLOY_DIR" "$USER_IDS" "$MIMIR_ENABLED" "${MIMIR_PORT:-8100}" || warn "Runtime validation had failures — check above."
 fi
 
 # ── Phase 11: Initialize git ────────────────────────────────────────────────
