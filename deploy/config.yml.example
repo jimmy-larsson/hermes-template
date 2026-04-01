@@ -6,8 +6,6 @@
 # Mimir: Structured memory MCP server. When enabled, all users share
 # a persistent memory system with tasks, facts, projects, and scopes.
 # When disabled, each user has independent file-based state.
-# Install Mimir: pip install mimir-mcp or docker pull mimir-mcp
-# Docs: https://github.com/jimmy-larsson/mimir
 mimir:
   enabled: false
   port: 8100
@@ -18,29 +16,29 @@ mimir:
 # - admin: true/false (Mimir admin privileges)
 # - scopes: List of Mimir scopes this user can access
 users:
-  - id: jimmy
-    name: Jimmy
+  - id: john
+    name: John Doe
     admin: true
     scopes:
-      - jimmy
-      - household
-  - id: alex
-    name: Alex
+      - john
+      - family
+  - id: janet
+    name: Janet Doe
     admin: false
     scopes:
-      - alex
-      - household
+      - janet
+      - family
 
 # Scopes: Access groups for organizing shared data.
 # Only relevant when Mimir is enabled.
 # Each user should have a personal scope matching their id.
 scopes:
-  - id: jimmy
-    name: Jimmy
-    description: Jimmy's personal scope
-  - id: alex
-    name: Alex
-    description: Alex's personal scope
-  - id: household
-    name: Household
-    description: Shared household scope
+  - id: john
+    name: John Doe
+    description: John's personal scope
+  - id: janet
+    name: Janet Doe
+    description: Janet's personal scope
+  - id: family
+    name: Family
+    description: Shared family scope
