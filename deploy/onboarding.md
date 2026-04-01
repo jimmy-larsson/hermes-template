@@ -221,34 +221,33 @@ Report progress to the user as the script runs. If Docker isn't available, note 
 
 ## Step 9: Claude Code authentication
 
-Check if the shared auth directory has files:
+Check if shared auth is already configured:
 
 ```bash
 ls -A DEPLOY_PATH/data/shared/claude-auth/
 ```
 
-If empty, ask conversationally:
+If empty, ask conversationally. **Do NOT read or display the credentials file.**
 
 > "Next up: Claude Code authentication for the containers.
 >
 > How would you like to handle auth?
-> 1. **Share your current login** — copies `~/.claude/.credentials.json` into a shared volume mounted by all user containers. This means all containers use the same Anthropic account. The credentials are mounted read-only.
+> 1. **Share your current login** — mounts your `~/.claude/.credentials.json` (read-only) into all user containers so they share the same Anthropic account. Credentials stay on the host and update automatically when you re-authenticate.
 > 2. **Login per container** — each user runs `claude login` the first time they connect. Use this if users have separate Anthropic accounts."
 
-If the user chooses option 1, copy the credentials:
+If the user chooses option 1:
 
+1. Verify the credentials file exists on the host:
+```bash
+test -f ~/.claude/.credentials.json && echo "Found" || echo "Not found"
+```
+
+2. If found, copy it to the shared auth directory (containers mount this volume):
 ```bash
 cp ~/.claude/.credentials.json DEPLOY_PATH/data/shared/claude-auth/
 ```
 
-Verify the copy worked:
-
-```bash
-ls -la DEPLOY_PATH/data/shared/claude-auth/
-```
-
-If the file exists, restart **only the user containers** (Mimir doesn't need Claude credentials):
-
+3. Restart only user containers (Mimir doesn't need Claude credentials):
 ```bash
 cd DEPLOY_PATH && docker compose restart $(docker compose ps --format '{{.Service}}' | grep -v mimir)
 ```
@@ -278,21 +277,62 @@ If any checkpoint failed, relay the specific failures and suggest fixes.
 
 ## Step 11: Install wrapper command
 
-The `setup.sh` script already auto-installed the `hermes` wrapper for the current shell. But confirm it worked:
+List the available wrapper formats that were generated:
 
-> "The `hermes` command has been installed for your shell. Restart your shell (or run `exec {fish/bash/zsh}`) to activate it."
+```bash
+ls DEPLOY_PATH/data/users/*/hermes-wrapper.*
+```
 
-If the user reports it didn't work, check their shell and install manually:
+Ask the user:
 
-**For fish:**
+> "Want me to install the `hermes` command? This gives you quick access to your containers:
+> - `hermes` — AI assistant (tmux + Claude Code)
+> - `hermes <name>` — named session
+> - `hermes shell` — plain bash shell in container
+> - `hermes list` — show active sessions
+>
+> Available formats:
+> 1. **fish** — installs to `~/.config/fish/conf.d/`
+> 2. **bash** — adds to `~/.bashrc`
+> 3. **zsh** — adds to `~/.zshrc`
+> 4. **Skip** — I'll set it up myself"
+
+If the user has multiple user IDs configured, also ask which user to install for.
+
+Based on their choice:
+
+**fish:**
 ```bash
 cp DEPLOY_PATH/data/users/USER/hermes-wrapper.fish ~/.config/fish/conf.d/hermes.fish
 ```
 
-**For bash/zsh:**
+**bash:**
 ```bash
-echo 'source DEPLOY_PATH/data/users/USER/hermes-wrapper.sh' >> ~/.bashrc
+WRAPPER="DEPLOY_PATH/data/users/USER/hermes-wrapper.sh"
+if ! grep -qF "source $WRAPPER" ~/.bashrc 2>/dev/null; then
+    echo "" >> ~/.bashrc
+    echo "# Hermes wrapper" >> ~/.bashrc
+    echo "source $WRAPPER" >> ~/.bashrc
+fi
 ```
+
+**zsh:**
+```bash
+WRAPPER="DEPLOY_PATH/data/users/USER/hermes-wrapper.sh"
+if ! grep -qF "source $WRAPPER" ~/.zshrc 2>/dev/null; then
+    echo "" >> ~/.zshrc
+    echo "# Hermes wrapper" >> ~/.zshrc
+    echo "source $WRAPPER" >> ~/.zshrc
+fi
+```
+
+After installing:
+
+> "Installed. Restart your shell or run `exec {shell}` to activate it."
+
+If the user skips, tell them where the files are:
+
+> "Wrapper files are at `DEPLOY_PATH/data/users/USER/` — both `.sh` (bash/zsh) and `.fish` formats."
 
 ---
 
