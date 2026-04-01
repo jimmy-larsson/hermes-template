@@ -3,6 +3,12 @@
 # Edit this file, then run setup.sh to generate the deployment.
 # Re-run setup.sh after changes to add users — it's idempotent.
 
+# Auth: How containers authenticate with Claude Code.
+# shared: true  — mounts ~/.claude/.credentials.json from the host (all containers share one account)
+# shared: false — each user logs in separately inside their container
+auth:
+  shared: false
+
 # Mimir: Structured memory MCP server. When enabled, all users share
 # a persistent memory system with tasks, facts, projects, and scopes.
 # When disabled, each user has independent file-based state.

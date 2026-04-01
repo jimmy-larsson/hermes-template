@@ -513,12 +513,14 @@ fi
 CONFIG="$DEPLOY_DIR/config.yml"
 info "Reading config from $CONFIG"
 
+AUTH_SHARED=$(python3 "$PARSER" "$CONFIG" auth.shared)
 MIMIR_ENABLED=$(python3 "$PARSER" "$CONFIG" mimir.enabled)
 MIMIR_PORT=$(python3 "$PARSER" "$CONFIG" mimir.port)
 USER_IDS=$(python3 "$PARSER" "$CONFIG" user_ids)
 USERS_JSON=$(python3 "$PARSER" "$CONFIG" users)
 SCOPES_JSON=$(python3 "$PARSER" "$CONFIG" scopes)
 
+info "Auth: $([ "$AUTH_SHARED" = "true" ] && echo "shared credentials" || echo "per-container login")"
 info "Mimir: $MIMIR_ENABLED"
 info "Users: $(echo $USER_IDS | sed 's/ /, /g')"
 
@@ -591,6 +593,11 @@ fi
 # User services
 for user_id in $USER_IDS; do
     KEY_VAR="API_KEY_$(echo "$user_id" | tr '[:lower:]' '[:upper:]')"
+    AUTH_VOL=""
+    if [ "$AUTH_SHARED" = "true" ]; then
+        AUTH_VOL="
+      - ${HOME}/.claude/.credentials.json:/opt/hermes/auth/.credentials.json:ro"
+    fi
     cat >> "$COMPOSE_FILE" << USER
   ${user_id}-hermes:
     build:
@@ -602,8 +609,7 @@ for user_id in $USER_IDS; do
     volumes:
       - ./data/users/${user_id}/workspace:/home/user/hermes
       - ./data/users/${user_id}/claude-state:/home/user/.claude
-      - ${HOME}/.claude/.credentials.json:/opt/hermes/auth/.credentials.json:ro
-      - ./data/shared/claude-settings:/opt/hermes/settings:ro
+      - ./data/shared/claude-settings:/opt/hermes/settings:ro${AUTH_VOL}
     environment:
       - USER_NAME=${user_id}
     stdin_open: true
@@ -705,19 +711,21 @@ fi
 
 validate_generated_files "$DEPLOY_DIR" "$USER_IDS" "$MIMIR_ENABLED" || exit 1
 
-# ── Phase 8: Ensure credentials file exists for Docker mount ───────────────
+# ── Phase 8: Claude auth ────────────────────────────────────────────────────
 
-# The compose file mounts ~/.claude/.credentials.json into each container.
-# Docker creates a directory instead of a file if the source doesn't exist,
-# so ensure the file is present (empty is fine — Claude will prompt for login).
-CRED_FILE="$HOME/.claude/.credentials.json"
-if [ -f "$CRED_FILE" ]; then
-    info "Claude credentials found — will be shared with containers"
+if [ "$AUTH_SHARED" = "true" ]; then
+    # Ensure the credentials file exists so Docker doesn't create a directory
+    CRED_FILE="$HOME/.claude/.credentials.json"
+    if [ -f "$CRED_FILE" ]; then
+        info "Shared auth: credentials found at $CRED_FILE"
+    else
+        mkdir -p "$HOME/.claude"
+        touch "$CRED_FILE"
+        warn "Shared auth enabled but no credentials at $CRED_FILE"
+        warn "Run 'claude login' on the host, then restart containers."
+    fi
 else
-    mkdir -p "$HOME/.claude"
-    touch "$CRED_FILE"
-    warn "No Claude credentials at $CRED_FILE"
-    warn "Containers will prompt for login. Run 'claude login' on the host to share credentials."
+    info "Per-container auth: users will run 'claude login' on first connect"
 fi
 
 # ── Phase 9: Generate host wrapper scripts ────────────────────────────────

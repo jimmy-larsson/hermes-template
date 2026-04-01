@@ -20,7 +20,7 @@ import sys
 
 def parse_yaml(text):
     """Minimal YAML parser for the config.yml structure."""
-    result = {"mimir": {}, "users": [], "scopes": []}
+    result = {"auth": {}, "mimir": {}, "users": [], "scopes": []}
     current_section = None
     current_item = None
 
@@ -31,7 +31,10 @@ def parse_yaml(text):
 
         # Top-level keys
         if not line.startswith(" ") and not line.startswith("\t"):
-            if stripped.startswith("mimir:"):
+            if stripped.startswith("auth:"):
+                current_section = "auth"
+                current_item = None
+            elif stripped.startswith("mimir:"):
                 current_section = "mimir"
                 current_item = None
             elif stripped.startswith("users:"):
@@ -42,8 +45,19 @@ def parse_yaml(text):
                 current_item = None
             continue
 
+        # Auth section
+        if current_section == "auth":
+            m = re.match(r"\s+(\w+):\s*(.+)", line)
+            if m:
+                key, val = m.group(1), m.group(2).strip()
+                if val.lower() == "true":
+                    val = True
+                elif val.lower() == "false":
+                    val = False
+                result["auth"][key] = val
+
         # Mimir section
-        if current_section == "mimir":
+        elif current_section == "mimir":
             m = re.match(r"\s+(\w+):\s*(.+)", line)
             if m:
                 key, val = m.group(1), m.group(2).strip()
@@ -98,7 +112,9 @@ def main():
     with open(config_path) as f:
         config = parse_yaml(f.read())
 
-    if query == "mimir.enabled":
+    if query == "auth.shared":
+        print("true" if config["auth"].get("shared", False) else "false")
+    elif query == "mimir.enabled":
         print("true" if config["mimir"].get("enabled", False) else "false")
     elif query == "mimir.port":
         print(config["mimir"].get("port", 8100))
