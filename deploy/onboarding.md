@@ -95,34 +95,20 @@ Store the collected users as a list. Each user has: id (auto-derived from name),
 
 ---
 
-## Step 5: Configure Mimir
+## Step 5: Configure scopes
 
-Explain and ask:
+Ask about shared access groups first (this informs whether Mimir is needed):
 
-> "Next: **Mimir** — shared memory.
+> "Do any of your users need to share data — tasks, facts, projects — with each other?
 >
-> With Mimir enabled, all your users share a structured memory system — tasks, facts, projects, reminders — with scope-based access control (who can see what).
+> For example, a `household` scope that both Jimmy and Alex can see, or a `team` scope for work items.
 >
-> Without it, each user has independent file-based state.
->
-> Enable Mimir? (Most multi-user setups benefit from it, but it's optional.)"
+> 1. **Yes** — I'll set up shared scopes (requires Mimir)
+> 2. **No** — each user keeps their own private data"
 
-If the user enables Mimir, proceed to Step 6.
-If disabled, skip to Step 7 (scopes section won't be needed).
+If yes, collect shared scopes:
 
----
-
-## Step 6: Configure scopes (Mimir only)
-
-If Mimir is enabled, explain scopes:
-
-> "Mimir uses **scopes** to control who sees what.
->
-> I'll automatically create a **personal scope** for each user (e.g., `jimmy` scope for Jimmy's private items).
->
-> You can also add **shared scopes** — for example, a `household` scope that both Jimmy and Alex can see.
->
-> Want to add any shared scopes? (Give me a name like 'household' or 'team', or say 'no' to skip.)"
+> "What should the first shared scope be called? (e.g., 'household', 'team')"
 
 For each shared scope, collect:
 - Name (used as the scope ID, lowercased with hyphens for spaces)
@@ -130,6 +116,26 @@ For each shared scope, collect:
 - Which users should have access (default: all users)
 
 Continue until the user is done adding scopes.
+
+**Note:** Each user always gets a personal scope automatically (matching their user ID). You only need to ask about shared scopes here.
+
+---
+
+## Step 6: Configure Mimir
+
+If the user created shared scopes in Step 5, Mimir is required — inform them:
+
+> "Since you have shared scopes, I'll enable **Mimir** — the shared memory server. It stores tasks, facts, projects, and reminders with scope-based access control."
+
+If the user said no shared scopes in Step 5, ask:
+
+> "Even without shared scopes, **Mimir** gives each user structured memory — tasks, facts, projects, reminders — that persists across conversations.
+>
+> Without it, each user has independent file-based state.
+>
+> Enable Mimir? (Recommended, but optional.)"
+
+If Mimir is disabled, skip the scopes section when writing config in Step 7.
 
 ---
 
@@ -226,8 +232,8 @@ If empty, ask conversationally:
 > "Next up: Claude Code authentication for the containers.
 >
 > How would you like to handle auth?
-> 1. **Share your current login** — copies your credentials to all containers
-> 2. **Login per container** — each user runs `claude login` the first time they connect"
+> 1. **Share your current login** — copies `~/.claude/.credentials.json` into a shared volume mounted by all user containers. This means all containers use the same Anthropic account. The credentials are mounted read-only.
+> 2. **Login per container** — each user runs `claude login` the first time they connect. Use this if users have separate Anthropic accounts."
 
 If the user chooses option 1, copy the credentials:
 
@@ -241,10 +247,10 @@ Verify the copy worked:
 ls -la DEPLOY_PATH/data/shared/claude-auth/
 ```
 
-If the file exists, restart containers to pick up the auth:
+If the file exists, restart **only the user containers** (Mimir doesn't need Claude credentials):
 
 ```bash
-cd DEPLOY_PATH && docker compose restart
+cd DEPLOY_PATH && docker compose restart $(docker compose ps --format '{{.Service}}' | grep -v mimir)
 ```
 
 If the user chooses option 2, no action needed — just note that users will need to run `claude login` inside their container on first connect.
@@ -255,62 +261,61 @@ If files already exist in the auth directory, skip this step.
 
 ## Step 10: Verify
 
-If Docker is available, run verification checks:
+The `setup.sh` script already runs three validation checkpoints automatically:
+1. **Config validation** — after parsing config.yml
+2. **Generated files validation** — after generating .env, compose, workspaces, seed
+3. **Runtime validation** — after starting containers (containers up, Mimir healthy, API keys work, seed loaded, tmux sessions exist)
 
-```bash
-cd DEPLOY_PATH && docker compose ps
-```
+**Do NOT re-run these checks manually.** The script output already contains all validation results with pass/fail indicators.
 
-For each user container that's running:
+Read the script output and relay the results to the user. If all checkpoints passed:
 
-```bash
-docker exec USER-hermes tmux list-sessions
-```
+> "All validation checks passed — {summary of what was verified}."
 
-```bash
-docker exec USER-hermes claude --version
-```
-
-If Mimir is enabled:
-
-```bash
-docker exec USER-hermes curl -sf http://mimir:8100/sse && echo "Mimir reachable" || echo "Mimir not reachable"
-```
-
-Report results:
-
-> "Verification results:
-> - Containers: {running/not running}
-> - tmux sessions: {active/not active}
-> - Claude Code: {version or not found}
-> - Mimir: {reachable/not reachable/disabled}"
-
-If Docker isn't available, tell the user:
-
-> "Docker isn't available on this machine. Once you're on the deployment server with Docker Compose v2, run:
-> ```
-> cd DEPLOY_PATH && docker compose up -d
-> ```"
+If any checkpoint failed, relay the specific failures and suggest fixes.
 
 ---
 
-## Step 11: Wrap up
+## Step 11: Install wrapper command
 
-> "You're all set! Here's how to use your deployment:
+The `setup.sh` script already auto-installed the `hermes` wrapper for the current shell. But confirm it worked:
+
+> "The `hermes` command has been installed for your shell. Restart your shell (or run `exec {fish/bash/zsh}`) to activate it."
+
+If the user reports it didn't work, check their shell and install manually:
+
+**For fish:**
+```bash
+cp DEPLOY_PATH/data/users/USER/hermes-wrapper.fish ~/.config/fish/conf.d/hermes.fish
+```
+
+**For bash/zsh:**
+```bash
+echo 'source DEPLOY_PATH/data/users/USER/hermes-wrapper.sh' >> ~/.bashrc
+```
+
+---
+
+## Step 12: Wrap up
+
+Present a summary covering verification results, how to connect, and how to manage. Replace USER and DEPLOY_PATH with actual values:
+
+> "**Deployment complete!**
 >
-> **Connect to a container:**
+> **Verification:**
+> - Containers: {list each container and status — running/stopped}
+> - tmux sessions: {active for each user}
+> - Mimir: {healthy/disabled}
+>
+> **Connect:**
 > ```
-> docker exec -it USER-hermes tmux attach -t hermes
+> hermes              # AI assistant (tmux + Claude Code)
+> hermes <name>       # named session (e.g., hermes research)
+> hermes shell        # plain bash shell in container
+> hermes list         # show active sessions
 > ```
 >
-> **Or use the hermes shortcut** (add to your shell config):
-> ```
-> source DEPLOY_PATH/data/users/USER/hermes-wrapper.sh
-> hermes              # attach to tmux session
-> hermes research     # open a named Claude Code session
-> ```
->
-> **Manage the deployment:**
+> **Manage:**
 > ```
 > cd DEPLOY_PATH
 > docker compose ps      # check status
@@ -318,9 +323,9 @@ If Docker isn't available, tell the user:
 > docker compose up -d   # start everything
 > ```
 >
-> **Add a user later:**
-> 1. Edit `DEPLOY_PATH/config.yml` — add the new user
-> 2. Re-run: `./deploy/setup.sh DEPLOY_PATH`
-> 3. New container starts, existing ones untouched"
-
-Replace USER and DEPLOY_PATH with actual values throughout.
+> **Add a user later:** edit `DEPLOY_PATH/config.yml`, then re-run `./deploy/setup.sh DEPLOY_PATH`
+>
+> **Remote access (from another machine):**
+> ```
+> ./deploy/setup.sh --connect user@this-host --user <user-id>
+> ```"

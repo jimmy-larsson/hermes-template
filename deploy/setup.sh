@@ -292,33 +292,35 @@ validate_runtime() {
             fail "mimir container: $status"; errors=$((errors + 1))
         fi
 
-        # Mimir responds on port
+        # Mimir health check
         sleep 2  # give it a moment to start
-        if curl -sf "http://localhost:$mimir_port/sse" -m 3 -o /dev/null 2>/dev/null; then
-            pass "mimir responding on port $mimir_port"
+        local health
+        health=$(docker inspect --format='{{.State.Health.Status}}' mimir 2>/dev/null || echo "no healthcheck")
+        if [ "$health" = "healthy" ]; then
+            pass "mimir healthcheck: healthy"
+        elif [ "$health" = "starting" ]; then
+            warn "mimir healthcheck: starting (may need a few more seconds)"
         else
-            fail "mimir not responding on port $mimir_port"; errors=$((errors + 1))
+            fail "mimir healthcheck: $health"; errors=$((errors + 1))
         fi
 
-        # Each user's API key authenticates
+        # Each user's API key exists in seed data
         local env_file="$deploy_dir/.env"
         set -a; source "$env_file"; set +a
         for uid in $user_ids; do
             local key_var="API_KEY_$(echo "$uid" | tr '[:lower:]' '[:upper:]')"
             local api_key="${!key_var}"
-            local response
-            response=$(curl -sf "http://localhost:$mimir_port/sse" \
-                -H "x-api-key: $api_key" -m 3 2>/dev/null || echo "failed")
-            if [ "$response" != "failed" ]; then
-                pass "$uid API key authenticates"
+            local db_user
+            db_user=$(docker exec mimir python3 -c "
+import sqlite3
+c = sqlite3.connect('/data/mimir.db')
+r = c.execute('SELECT id FROM users WHERE api_key = ?', ('$api_key',)).fetchone()
+print(r[0] if r else '')
+" 2>/dev/null || echo "")
+            if [ "$db_user" = "$uid" ]; then
+                pass "$uid API key resolves correctly in DB"
             else
-                # SSE may not return clean — check if Mimir at least accepts the connection
-                if curl -sf "http://localhost:$mimir_port/sse" \
-                    -H "x-api-key: $api_key" -m 3 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -q "200"; then
-                    pass "$uid API key authenticates"
-                else
-                    fail "$uid API key rejected"; errors=$((errors + 1))
-                fi
+                fail "$uid API key not found or mismatched (got: '$db_user')"; errors=$((errors + 1))
             fi
         done
 
