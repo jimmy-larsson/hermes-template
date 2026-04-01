@@ -2,10 +2,12 @@
 set -e
 
 # 1. Copy shared auth into user's writable ~/.claude/
-#    -n = no clobber (don't overwrite existing user settings)
+#    The host's credentials file is mounted read-only at /opt/hermes/auth/.credentials.json.
+#    Copy it into the writable ~/.claude/ so Claude Code can use it.
+#    -n = no clobber (don't overwrite if user already logged in locally)
 mkdir -p /home/user/.claude
-if [ -d /opt/hermes/auth ] && [ "$(ls -A /opt/hermes/auth 2>/dev/null)" ]; then
-    cp -n /opt/hermes/auth/* /home/user/.claude/ 2>/dev/null || true
+if [ -f /opt/hermes/auth/.credentials.json ] && [ -s /opt/hermes/auth/.credentials.json ]; then
+    cp -n /opt/hermes/auth/.credentials.json /home/user/.claude/.credentials.json 2>/dev/null || true
 fi
 
 # 2. Copy shared global settings (if not already present)
