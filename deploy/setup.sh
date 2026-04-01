@@ -567,14 +567,16 @@ networks:
 services:
 HEADER
 
-# Mimir service (if enabled)
+# Mimir service (if enabled) — pulls from GitHub Container Registry
 if [ "$MIMIR_ENABLED" = "true" ]; then
-    cat >> "$COMPOSE_FILE" << MIMIR
+    cat >> "$COMPOSE_FILE" << 'MIMIR'
   mimir:
-    image: mimir-mcp
+    image: ghcr.io/jimmy-larsson/mimir:latest
     container_name: mimir
     networks: [hermes-net]
     restart: unless-stopped
+MIMIR
+    cat >> "$COMPOSE_FILE" << MIMIR
     ports: ["\${MIMIR_PORT:-$MIMIR_PORT}:8100"]
     volumes:
       - ./data/mimir/data:/data
