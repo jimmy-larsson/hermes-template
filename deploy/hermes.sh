@@ -5,6 +5,7 @@
 #   hermes <name>     — open Claude Code in a named tmux window with
 #                       --effort max --name <name>
 #   hermes list       — show all hermes windows
+#   hermes shell      — drop into a plain bash shell (no tmux/claude)
 #
 # Inside tmux:
 #   Ctrl-b w          — visual window picker
@@ -35,6 +36,11 @@ __hermes_find_anchor() {
 
 hermes() {
     local win_name="$1"
+
+    # Subcommand: plain shell (no tmux/claude)
+    if [ "$win_name" = "shell" ]; then
+        cd ~/hermes && exec bash -l
+    fi
 
     # Subcommand: list all windows
     if [ "$win_name" = "list" ]; then

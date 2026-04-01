@@ -317,10 +317,19 @@ if [ "$MIMIR_ENABLED" = "true" ]; then
     echo "    mimir: http://localhost:$MIMIR_PORT"
 fi
 echo ""
-echo "  To add the 'hermes' shortcut to your shell:"
+echo "  Add the 'hermes' shortcut to your shell:"
 for user_id in $USER_IDS; do
     echo "    source $DEPLOY_DIR/data/users/$user_id/hermes-wrapper.sh"
 done
+echo ""
+echo "  Commands:"
+echo "    hermes            — AI assistant (tmux + Claude Code)"
+echo "    hermes <name>     — named Claude Code session"
+echo "    hermes shell      — plain bash shell in container"
+echo "    hermes list       — show active sessions"
+echo ""
+echo "  Remote access (from another machine):"
+echo "    Copy the wrapper script and set HERMES_REMOTE=\"user@this-host\""
 echo ""
 echo "  To stop:  cd $DEPLOY_DIR && docker compose down"
 echo "  To start: cd $DEPLOY_DIR && docker compose up -d"
