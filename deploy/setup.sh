@@ -724,37 +724,16 @@ if [ ! "$(ls -A "$AUTH_DIR" 2>/dev/null)" ]; then
     fi
 fi
 
-# ── Phase 9: Generate and install host wrapper scripts ────────────────────
-
-CURRENT_SHELL=$(basename "${SHELL:-bash}")
+# ── Phase 9: Generate host wrapper scripts ────────────────────────────────
 
 for user_id in $USER_IDS; do
-    # Generate both formats
     WRAPPER_SH="$DEPLOY_DIR/data/users/$user_id/hermes-wrapper.sh"
     WRAPPER_FISH="$DEPLOY_DIR/data/users/$user_id/hermes-wrapper.fish"
     sed "s/%%USER_ID%%/$user_id/g" \
         "$SCRIPT_DIR/templates/host-wrapper.sh.tmpl" > "$WRAPPER_SH"
     sed "s/%%USER_ID%%/$user_id/g" \
         "$SCRIPT_DIR/templates/host-wrapper.fish.tmpl" > "$WRAPPER_FISH"
-
-    # Auto-install for the user running setup.sh
-    if [ "$CURRENT_SHELL" = "fish" ]; then
-        INSTALL_DIR="$HOME/.config/fish/conf.d"
-        INSTALL_FILE="$INSTALL_DIR/hermes-${user_id}.fish"
-        mkdir -p "$INSTALL_DIR"
-        cp "$WRAPPER_FISH" "$INSTALL_FILE"
-        info "Installed $user_id wrapper: $INSTALL_FILE"
-    else
-        SHELL_RC="$HOME/.bashrc"
-        [ -f "$HOME/.zshrc" ] && SHELL_RC="$HOME/.zshrc"
-        SOURCE_LINE="source $WRAPPER_SH"
-        if ! grep -qF "$SOURCE_LINE" "$SHELL_RC" 2>/dev/null; then
-            echo "" >> "$SHELL_RC"
-            echo "# Hermes wrapper for $user_id" >> "$SHELL_RC"
-            echo "$SOURCE_LINE" >> "$SHELL_RC"
-        fi
-        info "Installed $user_id wrapper in $SHELL_RC"
-    fi
+    info "Generated wrappers for $user_id (bash + fish)"
 done
 
 # ── Phase 10: Build and start ───────────────────────────────────────────────
@@ -805,17 +784,8 @@ if [ "$MIMIR_ENABLED" = "true" ]; then
     echo "    mimir: http://localhost:$MIMIR_PORT"
 fi
 echo ""
-echo "  The 'hermes' command has been installed for your shell."
-echo "  Restart your shell or run: exec $CURRENT_SHELL"
-echo ""
-echo "  Commands:"
-echo "    hermes            — AI assistant (tmux + Claude Code)"
-echo "    hermes <name>     — named Claude Code session"
-echo "    hermes shell      — plain bash shell in container"
-echo "    hermes list       — show active sessions"
-echo ""
-echo "  Remote access (from another machine):"
-echo "    ./deploy/setup.sh --connect user@this-host --user <user-id>"
+echo "  Wrapper scripts generated for each user (bash + fish)."
+echo "  Available at: $DEPLOY_DIR/data/users/<user-id>/"
 echo ""
 echo "  To stop:  cd $DEPLOY_DIR && docker compose down"
 echo "  To start: cd $DEPLOY_DIR && docker compose up -d"
