@@ -8,7 +8,7 @@ This guide is read by Claude Code when the user runs `/deploy`. Follow these ste
 
 - **DO NOT use interactive bash prompts** (`read`, `select`, etc.) — they don't work from Claude Code. All user interaction must be conversational.
 - **Remember the deploy path** chosen in Step 2. Use it in all subsequent steps.
-- **YAML format matters** — the config parser (`deploy/parse_config.py`) is hand-rolled and expects exact formatting. Follow the structure shown in Step 7 precisely.
+- **YAML format matters** — the config parser (`deploy/parse_config.py`) is hand-rolled and expects exact formatting. Follow the structure shown in Step 8 precisely.
 
 ---
 
@@ -135,11 +135,21 @@ If the user said no shared scopes in Step 5, ask:
 >
 > Enable Mimir? (Recommended, but optional.)"
 
-If Mimir is disabled, skip the scopes section when writing config in Step 7.
+If Mimir is disabled, skip the scopes section when writing config in Step 8.
 
 ---
 
-## Step 7: Write config.yml
+## Step 7: Configure authentication
+
+> "How should containers authenticate with Claude Code?
+> 1. **Shared credentials** — mounts your host's `~/.claude/.credentials.json` (read-only) into all containers. All users share one Anthropic account. Credentials update automatically when you re-authenticate on the host.
+> 2. **Per-container login** — each user runs `claude login` inside their container on first connect. Use this if users have separate Anthropic accounts."
+
+Store the answer as `auth.shared: true` or `auth.shared: false` for config.yml.
+
+---
+
+## Step 8: Write config.yml
 
 Assemble the final YAML from the collected answers and write it to `DEPLOY_PATH/config.yml`.
 
@@ -147,6 +157,9 @@ Assemble the final YAML from the collected answers and write it to `DEPLOY_PATH/
 
 ```yaml
 # Hermes Multi-User Deployment Configuration
+
+auth:
+  shared: AUTH_SHARED
 
 mimir:
   enabled: MIMIR_ENABLED
@@ -170,7 +183,7 @@ scopes:
 ```
 
 **Format rules:**
-- Top-level keys (`mimir:`, `users:`, `scopes:`) start at column 0
+- Top-level keys (`auth:`, `mimir:`, `users:`, `scopes:`) start at column 0
 - Sub-keys use 2-space indentation
 - List items use `  - id:` format (2-space indent before dash)
 - Nested scope lists use 6-space indentation (`      - scope_id`)
@@ -185,6 +198,7 @@ Show the user what was written:
 > "Config written. Here's what I set up:
 >
 > - **Users:** {list of names}
+> - **Auth:** {shared/per-container}
 > - **Mimir:** {enabled/disabled}
 > - **Scopes:** {list of scopes if applicable}
 >
@@ -194,7 +208,7 @@ Wait for confirmation before proceeding.
 
 ---
 
-## Step 8: Run setup.sh again (generate everything)
+## Step 9: Run setup.sh again (generate everything)
 
 Run:
 
@@ -203,41 +217,21 @@ Run:
 ```
 
 This time config.yml exists, so the script will:
-- Parse the config
+- Parse the config (auth, mimir, users, scopes)
+- Validate the config
 - Generate API keys per user
-- Generate docker-compose.yml
+- Generate docker-compose.yml (with conditional credentials mount based on auth.shared)
 - Create per-user workspaces (CLAUDE.md, commands, state files)
 - Generate .mcp.json per user (if Mimir enabled)
 - Generate Mimir seed.sql (if Mimir enabled)
-- Generate host wrapper scripts
+- Generate host wrapper scripts (bash + fish)
+- Validate generated files
 - Build Docker images (if Docker available)
-- Seed Mimir database (if enabled and Docker available)
 - Start containers (if Docker available)
+- Validate runtime (containers, Mimir health, API keys, seed data, tmux sessions)
 - Git init the deployment directory
 
 Report progress to the user as the script runs. If Docker isn't available, note that containers need to be built and started manually later.
-
----
-
-## Step 9: Claude Code authentication
-
-The compose file automatically mounts `~/.claude/.credentials.json` (read-only) from the host into every user container. **No manual copy is needed.**
-
-Check if credentials exist on the host:
-
-```bash
-test -f ~/.claude/.credentials.json && echo "Found" || echo "Not found"
-```
-
-If found:
-
-> "Your Claude Code credentials (`~/.claude/.credentials.json`) are automatically shared with all containers via a read-only mount. When you re-authenticate on the host (`claude login`), containers pick up the new credentials on restart. No action needed."
-
-If not found:
-
-> "No Claude Code credentials found on the host. Each user will need to run `claude login` inside their container on first connect.
->
-> To share credentials later, run `claude login` on the host — the containers mount `~/.claude/.credentials.json` automatically."
 
 ---
 
