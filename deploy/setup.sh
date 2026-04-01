@@ -492,8 +492,7 @@ info "Deploy location: $DEPLOY_DIR"
 
 # ── Phase 2: Initialize deploy directory ────────────────────────────────────
 
-mkdir -p "$DEPLOY_DIR/build" "$DEPLOY_DIR/data/shared/claude-auth" \
-         "$DEPLOY_DIR/data/shared/claude-settings"
+mkdir -p "$DEPLOY_DIR/build" "$DEPLOY_DIR/data/shared/claude-settings"
 
 # Copy build files
 cp "$SCRIPT_DIR/Dockerfile" "$DEPLOY_DIR/build/Dockerfile"
@@ -603,7 +602,7 @@ for user_id in $USER_IDS; do
     volumes:
       - ./data/users/${user_id}/workspace:/home/user/hermes
       - ./data/users/${user_id}/claude-state:/home/user/.claude
-      - ./data/shared/claude-auth:/opt/hermes/auth:ro
+      - ${HOME}/.claude/.credentials.json:/opt/hermes/auth/.credentials.json:ro
       - ./data/shared/claude-settings:/opt/hermes/settings:ro
     environment:
       - USER_NAME=${user_id}
@@ -706,22 +705,19 @@ fi
 
 validate_generated_files "$DEPLOY_DIR" "$USER_IDS" "$MIMIR_ENABLED" || exit 1
 
-# ── Phase 8: Claude auth ────────────────────────────────────────────────────
+# ── Phase 8: Ensure credentials file exists for Docker mount ───────────────
 
-AUTH_DIR="$DEPLOY_DIR/data/shared/claude-auth"
-if [ ! "$(ls -A "$AUTH_DIR" 2>/dev/null)" ]; then
-    echo ""
-    warn "Claude Code auth not yet configured."
-    warn "Copy your credentials to share with all containers:"
-    warn "  cp ~/.claude/.credentials.json $AUTH_DIR/"
-    warn ""
-    warn "Or skip — users can run 'claude login' inside their containers."
-    echo ""
-    if [ -t 0 ]; then
-        read -rp "Press Enter to continue without auth, or Ctrl+C to stop and copy first... "
-    else
-        warn "Non-interactive mode — continuing without auth."
-    fi
+# The compose file mounts ~/.claude/.credentials.json into each container.
+# Docker creates a directory instead of a file if the source doesn't exist,
+# so ensure the file is present (empty is fine — Claude will prompt for login).
+CRED_FILE="$HOME/.claude/.credentials.json"
+if [ -f "$CRED_FILE" ]; then
+    info "Claude credentials found — will be shared with containers"
+else
+    mkdir -p "$HOME/.claude"
+    touch "$CRED_FILE"
+    warn "No Claude credentials at $CRED_FILE"
+    warn "Containers will prompt for login. Run 'claude login' on the host to share credentials."
 fi
 
 # ── Phase 9: Generate host wrapper scripts ────────────────────────────────
