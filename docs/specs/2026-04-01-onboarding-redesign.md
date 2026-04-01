@@ -5,7 +5,7 @@
 
 ## Summary
 
-Redesign the `/deploy` onboarding from 12 implementation-focused steps to 7 user-focused steps. Fix 3 HIGH bugs, 2 MEDIUM bugs in setup.sh. Update managing.md for consistency with new auth config and GHCR-based Mimir.
+Redesign the `/deploy` onboarding from 12 implementation-focused steps to 7 user-focused steps. Fix 3 HIGH bugs, 2 MEDIUM bugs, 1 LOW bug across setup.sh and parse_config.py. Update managing.md for consistency with new auth config and GHCR-based Mimir.
 
 ## Motivation
 
@@ -93,26 +93,43 @@ sed -i "s/^MIMIR_PORT=.*/MIMIR_PORT=$MIMIR_PORT/" "$ENV_FILE"
 
 #### BUG 5 (LOW): Boolean normalization in parse_config.py
 
-`user.X.admin` returns Python `True`/`False` (capital). setup.sh compensates with `[ "$IS_ADMIN" = "True" ]` — works but fragile.
+`user.X.admin` returns Python `True`/`False` (capital T/F) because the `user.*` query branch at lines 127-134 does `print(u.get(field, ""))` which outputs Python's native bool repr. The `auth.shared` and `mimir.enabled` queries already output lowercase explicitly — only the `user.*` path has this issue.
 
-Fix: Normalize in parse_config.py:
+setup.sh compensates with `[ "$IS_ADMIN" = "True" ]` — works but fragile.
+
+Fix: In parse_config.py, update the `user.*` branch (lines 127-134):
 ```python
-if isinstance(val, bool):
-    print("true" if val else "false")
+elif query.startswith("user."):
+    parts = query.split(".")
+    user_id, field = parts[1], parts[2]
+    for u in config["users"]:
+        if u["id"] == user_id:
+            val = u.get(field, "")
+            if isinstance(val, bool):
+                print("true" if val else "false")
+            else:
+                print(val)
+            break
 ```
 Update setup.sh to compare `"true"` (lowercase).
+
+#### BUG 6 (MEDIUM): validate_config() regex allows hyphens
+
+setup.sh line 93: `^[a-z][a-z0-9_-]*$` allows hyphens in user IDs, but hyphens break .env variable names (BUG 1).
+
+Fix: Update regex to `^[a-z][a-z0-9_]*$` (underscores only, no hyphens).
 
 ### 4. managing.md Fixes
 
 | # | Issue | Fix |
 |---|-------|-----|
-| 1 | References "onboarding.md Step 7" | Update to "Step 8" (or the new step number after redesign) |
+| 1 | References "onboarding.md Step 7" for YAML format | Remove step number reference — say "Follow the YAML format rules in onboarding.md" since the new flow internalizes config writing |
 | 2 | Auth check references `data/shared/claude-auth/` directory | Check `auth.shared` from config instead |
 | 3 | `docker compose restart` for all containers | Use `docker compose up -d` to apply config changes |
 | 4 | Health check curls SSE endpoint from user container | Use `docker inspect --format='{{.State.Health.Status}}' mimir` |
 | 5 | Editing config.yml doesn't mention preserving auth section | Add to constraints: "preserve all top-level sections" |
 | 6 | Adding a user doesn't offer wrapper install | Add wrapper install prompt after user addition |
-| 7 | No scope management when adding users | Ask about new shared scopes for new user |
+| 7 | No scope management when adding users | Enhancement: ask about new shared scopes for new user |
 | 8 | User ID derivation uses hyphens | Match onboarding: underscores |
 
 ### 5. Config Template Update
@@ -123,8 +140,8 @@ Add comment to config.yml.example clarifying scopes are only relevant with Mimir
 
 ### In scope
 - Rewrite onboarding.md to 7-step flow
-- Fix 5 bugs in setup.sh
-- Fix boolean normalization in parse_config.py
+- Fix 4 bugs in setup.sh (BUGs 1-4, 6)
+- Fix boolean normalization in parse_config.py (BUG 5)
 - Update managing.md (8 fixes)
 - Update mcp.json.tmpl (hardcode internal port)
 - Update config.yml.example (clarifying comment)
