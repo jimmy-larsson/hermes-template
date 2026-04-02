@@ -646,8 +646,7 @@ for user_id in $USER_IDS; do
     if [ "$MIMIR_ENABLED" = "true" ]; then
         KEY_VAR="API_KEY_$(echo "$user_id" | tr '[:lower:]' '[:upper:]')"
         API_KEY="${!KEY_VAR}"
-        sed -e "s/%%MIMIR_PORT%%/$MIMIR_PORT/g" \
-            -e "s/%%API_KEY%%/$API_KEY/g" \
+        sed -e "s/%%API_KEY%%/$API_KEY/g" \
             "$SCRIPT_DIR/templates/mcp.json.tmpl" > "$USER_DIR/.mcp.json"
         # Copy into workspace for Claude Code to find
         cp "$USER_DIR/.mcp.json" "$WORKSPACE/.mcp.json"
