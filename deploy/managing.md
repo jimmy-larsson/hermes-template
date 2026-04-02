@@ -7,7 +7,8 @@ This guide is read by Claude Code when the user runs `/deploy` on an **existing 
 ## Important Constraints
 
 - **DO NOT use interactive bash prompts** (`read`, `select`, etc.) — they don't work from Claude Code. All user interaction must be conversational.
-- **YAML format matters** — the config parser (`deploy/parse_config.py`) is hand-rolled and expects exact formatting. Follow the structure from onboarding.md Step 7 precisely.
+- **YAML format matters** — the config parser (`deploy/parse_config.py`) is hand-rolled and expects exact formatting. Follow the YAML format rules in onboarding.md (Step 5, "Format rules" section).
+- **Preserve all top-level sections** — when editing config.yml, keep all top-level keys (`auth:`, `mimir:`, `users:`, `scopes:`) intact. Only modify values within sections.
 
 ---
 
@@ -45,7 +46,7 @@ Ask one question at a time, same as onboarding:
 
 > "What's the new user's name?"
 
-Wait for the name. Derive the user ID (lowercase, spaces to hyphens). Then ask:
+Wait for the name. Derive the user ID using onboarding rules: lowercase, spaces to underscores, strip special characters, must start with a letter. Then ask:
 
 > "Got it — I'll use `{id}` as the user ID. Is {name} an admin or a regular user?
 > 1. **Admin** — can manage scopes and users in Mimir
@@ -57,6 +58,12 @@ If Mimir is enabled, ask about scope access:
 > Current shared scopes: {list of non-personal scopes}"
 
 Present options as a numbered list of existing shared scopes plus "None".
+
+Also ask if they want to create a new shared scope for this user:
+
+> "Want to create a new shared scope for {name}? (Or just say 'no' to continue.)"
+
+If yes, collect the scope name, description, and which existing users should also get access. Add the new scope to both the `scopes:` and relevant `users:` sections in config.yml.
 
 Then update the config:
 
@@ -75,6 +82,16 @@ Report what happened:
 > "Added {name} (`{id}`, {role}). Container `{id}-hermes` is starting.
 >
 > To connect: `docker exec -it {id}-hermes tmux attach -t hermes`"
+
+Then ask about the wrapper:
+
+> "Want me to install the `hermes` wrapper for {name}?
+> 1. **fish** — installs to `~/.config/fish/conf.d/`
+> 2. **bash** — adds to `~/.bashrc`
+> 3. **zsh** — adds to `~/.zshrc`
+> 4. **Skip**"
+
+Install using the same method as onboarding Step 6.
 
 ---
 
@@ -156,16 +173,18 @@ docker exec USER-hermes tmux list-sessions 2>/dev/null
 docker exec USER-hermes claude --version 2>/dev/null
 ```
 
-Check auth:
+Check auth mode:
 
 ```bash
-ls -la DEPLOY_PATH/data/shared/claude-auth/
+python3 deploy/parse_config.py DEPLOY_PATH/config.yml auth.shared
 ```
 
-If Mimir enabled, check connectivity from a user container:
+If `true`, auth is shared (host credentials mounted). If `false`, per-container login.
+
+If Mimir enabled, check health:
 
 ```bash
-docker exec USER-hermes curl -sf http://mimir:8100/health 2>/dev/null && echo "OK" || echo "UNREACHABLE"
+docker inspect --format='{{.State.Health.Status}}' mimir 2>/dev/null || echo "no healthcheck"
 ```
 
 Present results in a table:
@@ -190,8 +209,8 @@ Ask what to restart:
 Then run the appropriate command:
 
 ```bash
-# All
-cd DEPLOY_PATH && docker compose restart
+# All (applies config changes)
+cd DEPLOY_PATH && docker compose up -d
 
 # Specific user
 cd DEPLOY_PATH && docker compose restart {id}-hermes
