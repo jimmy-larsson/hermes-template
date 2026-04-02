@@ -137,7 +137,7 @@ If enabling Mimir:
 > "Enabling Mimir. I'll set up personal scopes for each existing user.
 > Want to add any shared scopes? (e.g., `household`, `team`)"
 
-Follow the same scope collection flow from onboarding.md Step 6.
+Follow the same scope collection flow from onboarding.md Step 3.
 
 If disabling Mimir:
 
