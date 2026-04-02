@@ -36,7 +36,8 @@ users:
       - family
 
 # Scopes: Access groups for organizing shared data.
-# Only relevant when Mimir is enabled.
+# Only relevant when Mimir is enabled — ignored when mimir.enabled is false.
+# Included here to show the format; remove or leave as-is if not using Mimir.
 # Each user should have a personal scope matching their id.
 scopes:
   - id: john
