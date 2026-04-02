@@ -129,7 +129,11 @@ def main():
         user_id, field = parts[1], parts[2]
         for u in config["users"]:
             if u["id"] == user_id:
-                print(u.get(field, ""))
+                val = u.get(field, "")
+                if isinstance(val, bool):
+                    print("true" if val else "false")
+                else:
+                    print(val)
                 break
     else:
         print(f"Unknown query: {query}", file=sys.stderr)
