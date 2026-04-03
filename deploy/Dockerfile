@@ -8,7 +8,7 @@ RUN sed -i 's|http://|https://|g' /etc/apt/sources.list.d/debian.sources \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash curl git tmux python3 python3-pip \
+    bash curl git tmux python3 python3-pip sudo gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js (Claude Code dependency)
@@ -22,13 +22,8 @@ RUN npm install -g @anthropic-ai/claude-code
 # hermes session wrapper
 COPY hermes.sh /etc/profile.d/hermes.sh
 
-# Ark-ready mount point (Phase 3)
+# Ark rules mount point (Phase 3) — user home created at runtime by entrypoint
 RUN mkdir -p /opt/hermes/rules
-
-# User workspace and config mount points
-RUN mkdir -p /home/user/hermes /home/user/.claude
-
-WORKDIR /home/user/hermes
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

@@ -81,7 +81,7 @@ Report what happened:
 
 > "Added {name} (`{id}`, {role}). Container `{id}-hermes` is starting.
 >
-> To connect: `docker exec -it {id}-hermes tmux attach -t hermes`"
+> To connect: `docker exec -u hermes_{id} -it {id}-hermes tmux attach -t hermes`"
 
 Then ask about the wrapper:
 
@@ -169,8 +169,8 @@ cd DEPLOY_PATH && docker compose ps
 For each running container:
 
 ```bash
-docker exec USER-hermes tmux list-sessions 2>/dev/null
-docker exec USER-hermes claude --version 2>/dev/null
+docker exec -u hermes_USER USER-hermes tmux list-sessions 2>/dev/null
+docker exec -u hermes_USER USER-hermes claude --version 2>/dev/null
 ```
 
 Check auth mode:

@@ -339,12 +339,12 @@ print(c.execute('SELECT COUNT(*) FROM users').fetchone()[0])
         fi
     fi
 
-    # tmux session exists in each container
+    # Verify container user exists
     for uid in $user_ids; do
-        if docker exec "${uid}-hermes" tmux has-session -t hermes 2>/dev/null; then
-            pass "${uid}-hermes tmux session exists"
+        if docker exec "${uid}-hermes" id "hermes_${uid}" &>/dev/null; then
+            pass "${uid}-hermes user hermes_${uid} exists"
         else
-            fail "${uid}-hermes tmux session missing"; errors=$((errors + 1))
+            fail "${uid}-hermes user hermes_${uid} missing"; errors=$((errors + 1))
         fi
     done
 
@@ -392,6 +392,7 @@ if [ "${1:-}" = "--connect" ]; then
     fi
 
     CONTAINER="${CONNECT_USER}-hermes"
+    HERMES_USER="hermes_${CONNECT_USER}"
     WRAPPER_TEMPLATE="$SCRIPT_DIR/templates/host-wrapper.sh.tmpl"
 
     if [ ! -f "$WRAPPER_TEMPLATE" ]; then
@@ -416,7 +417,7 @@ function __hermes_exec
     set -l ssh_opts -t
     test -n "$SSH_PORT"; and set ssh_opts \$ssh_opts -p $SSH_PORT
     test -n "$SSH_KEY"; and set ssh_opts \$ssh_opts -i $SSH_KEY
-    ssh \$ssh_opts $REMOTE_HOST docker exec \$flags $CONTAINER \$argv
+    ssh \$ssh_opts $REMOTE_HOST docker exec -u $HERMES_USER \$flags $CONTAINER \$argv
 end
 
 function hermes
@@ -610,8 +611,8 @@ for user_id in $USER_IDS; do
     networks: [hermes-net]
     restart: unless-stopped
     volumes:
-      - ./data/users/${user_id}/workspace:/home/user/hermes
-      - ./data/users/${user_id}/claude-state:/home/user/.claude
+      - ./data/users/${user_id}/workspace:/home/hermes_${user_id}/hermes
+      - ./data/users/${user_id}/claude-state:/home/hermes_${user_id}/.claude
       - ./data/shared/claude-settings:/opt/hermes/settings:ro${AUTH_VOL}
     environment:
       - USER_NAME=${user_id}
@@ -782,7 +783,7 @@ info "Deployment ready at $DEPLOY_DIR"
 echo ""
 echo "  Containers:"
 for user_id in $USER_IDS; do
-    echo "    $user_id: docker exec -it ${user_id}-hermes tmux attach -t hermes"
+    echo "    $user_id: docker exec -u hermes_${user_id} -it ${user_id}-hermes tmux attach -t hermes"
 done
 if [ "$MIMIR_ENABLED" = "true" ]; then
     echo "    mimir: http://localhost:$MIMIR_PORT"

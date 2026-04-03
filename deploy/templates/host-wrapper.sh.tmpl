@@ -17,6 +17,7 @@
 
 # ── Config (edit these for standalone/remote use) ──────────────────────────
 HERMES_CONTAINER="%%USER_ID%%-hermes"
+HERMES_USER="hermes_%%USER_ID%%"
 HERMES_REMOTE=""           # e.g., "jimmy@vps.example.com"
 HERMES_SSH_PORT=""         # e.g., "2222"
 HERMES_SSH_KEY=""          # e.g., "~/.ssh/id_ed25519"
@@ -29,9 +30,9 @@ __hermes_exec() {
         local ssh_opts="-t"
         [ -n "$HERMES_SSH_PORT" ] && ssh_opts="$ssh_opts -p $HERMES_SSH_PORT"
         [ -n "$HERMES_SSH_KEY" ] && ssh_opts="$ssh_opts -i $HERMES_SSH_KEY"
-        ssh $ssh_opts "$HERMES_REMOTE" docker exec $flags "$HERMES_CONTAINER" "$@"
+        ssh $ssh_opts "$HERMES_REMOTE" docker exec -u "$HERMES_USER" $flags "$HERMES_CONTAINER" "$@"
     else
-        docker exec $flags "$HERMES_CONTAINER" "$@"
+        docker exec -u "$HERMES_USER" $flags "$HERMES_CONTAINER" "$@"
     fi
 }
 

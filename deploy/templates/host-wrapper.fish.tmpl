@@ -10,11 +10,13 @@
 #
 # Configuration:
 #   HERMES_CONTAINER — Docker container name
+#   HERMES_USER      — Container user to exec as
 #   HERMES_REMOTE    — SSH target for remote access (empty = local Docker)
 #   HERMES_SSH_PORT  — SSH port (empty = default 22)
 #   HERMES_SSH_KEY   — SSH key path (empty = default)
 
 set -gx HERMES_CONTAINER "%%USER_ID%%-hermes"
+set -gx HERMES_USER "hermes_%%USER_ID%%"
 set -gx HERMES_REMOTE ""           # e.g., "jimmy@vps.example.com"
 set -gx HERMES_SSH_PORT ""         # e.g., "2222"
 set -gx HERMES_SSH_KEY ""          # e.g., "~/.ssh/id_ed25519"
@@ -26,9 +28,9 @@ function __hermes_exec
         set -l ssh_opts -t
         test -n "$HERMES_SSH_PORT"; and set -a ssh_opts -p $HERMES_SSH_PORT
         test -n "$HERMES_SSH_KEY"; and set -a ssh_opts -i $HERMES_SSH_KEY
-        ssh $ssh_opts $HERMES_REMOTE docker exec $flags $HERMES_CONTAINER $argv
+        ssh $ssh_opts $HERMES_REMOTE docker exec -u $HERMES_USER $flags $HERMES_CONTAINER $argv
     else
-        docker exec $flags $HERMES_CONTAINER $argv
+        docker exec -u $HERMES_USER $flags $HERMES_CONTAINER $argv
     end
 end
 
